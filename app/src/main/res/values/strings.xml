@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Gerenciamento de Energia</string>
+    <string name="choose_apps_title">Escolher aplicativos permitidos</string>
+    <string name="choose_apps_subtitle">Toque nos apps que deseja manter visíveis no modo Ultra‑Econômico</string>
+    <string name="search_hint">Buscar aplicativos…</string>
+    <string name="save_apps_button">Salvar seleção</string>
+    <string name="app_icon">Ícone do aplicativo</string>
+</resources>

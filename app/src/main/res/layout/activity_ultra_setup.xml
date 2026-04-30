@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:fitsSystemWindows="true"
+    android:gravity="center"
+    android:background="?attr/colorSurface">
+
+    <TextView
+        android:id="@+id/tv_step_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Passo 1"
+        android:textAppearance="?attr/textAppearanceHeadlineMedium"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tv_step_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Para usar a Ultra-Economia, precisamos fazer uma configuração rápida."
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:gravity="center"
+        android:layout_marginBottom="48dp"/>
+
+    <Button
+        android:id="@+id/btn_step_action"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Escolher Apps Permitidos"
+        android:textAppearance="?attr/textAppearanceTitleMedium"/>
+
+</LinearLayout>
