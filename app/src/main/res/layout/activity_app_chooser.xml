@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:fitsSystemWindows="true"
     android:background="?android:attr/colorBackground">
 
+    <!-- AppBarLayout gere o comportamento de scroll do topo -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         app:elevation="0dp">
 
+        <!-- CollapsingToolbarLayout faz o título e subtítulo colapsarem -->
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,7 +35,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/choose_apps_title"
-                    android:textAppearance="?attr/textAppearanceHeadline5"
+                    android:textAppearance="?attr/textAppearanceHeadlineMedium"
                     android:textColor="?android:attr/textColorPrimary"
                     android:textStyle="bold" />
 
@@ -43,12 +45,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/choose_apps_subtitle"
-                    android:textAppearance="?attr/textAppearanceBody1"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
                     android:textColor="?android:attr/textColorSecondary" />
             </LinearLayout>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
+        <!-- Barra de pesquisa fica fora do Collapsing para ficar fixa no topo (pinned) após o scroll -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -84,33 +87,44 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- O layout_behavior liga o scroll da RecyclerView com a AppBar -->
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/apps_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingBottom="16dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            android:paddingTop="8dp"
+            android:paddingBottom="100dp" />
 
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            style="?android:attr/progressBarStyleLarge" />
     </FrameLayout>
 
-    <Button
-        android:id="@+id/continue_button"
+    <!-- Container do botão fixo na parte inferior -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Continuar"
-        android:layout_margin="16dp"
-        style="@style/Widget.MaterialComponents.Button" />
+        android:layout_gravity="bottom"
+        android:background="?android:attr/colorBackground"
+        android:padding="16dp">
 
-</LinearLayout>
+        <Button
+            android:id="@+id/continue_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Continuar"
+            style="@style/Widget.MaterialComponents.Button" />
+    </FrameLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:elevation="2dp"
+        style="?android:attr/progressBarStyleLarge" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

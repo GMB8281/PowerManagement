@@ -3,8 +3,6 @@ package com.marinov.powermanagement
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,9 +11,13 @@ import android.telecom.TelecomManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -30,8 +32,10 @@ class AppChooserActivity : AppCompatActivity() {
     private lateinit var adapter: AppListAdapter
     private val mainHandler = Handler(Looper.getMainLooper())
 
+    private var isUltraSetup = false
+
     companion object {
-        private const val MAX_SELECTABLE = 8
+        private const val MAX_SELECTABLE = 12
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +43,8 @@ class AppChooserActivity : AppCompatActivity() {
         setContentView(R.layout.activity_app_chooser)
 
         supportActionBar?.hide()
+
+        isUltraSetup = intent.getBooleanExtra("ultra_setup", false)
 
         recyclerView = findViewById(R.id.apps_recycler_view)
         progressBar = findViewById(R.id.progress_bar)
@@ -50,14 +56,24 @@ class AppChooserActivity : AppCompatActivity() {
             onSelectionChanged = { saveCurrentSelection() },
             maxSelectable = MAX_SELECTABLE,
             onMaxAttempt = {
-                Toast.makeText(this, "Só podem ser selecionados no máximo 8 apps", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Só podem ser selecionados no máximo 12 apps", Toast.LENGTH_SHORT).show()
             }
         )
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
         recyclerView.itemAnimator = null
 
-        continueButton.setOnClickListener { finish() }
+        continueButton.setOnClickListener {
+            if (isUltraSetup) {
+                UltraBatterySaver.setUltraSetupComplete(this, true)
+                ModeLogic.applyModeWithLauncher(this, TaskerLogic.Mode.ULTRA)
+                startActivity(Intent(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_HOME)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                })
+            }
+            finish()
+        }
 
         setupSearch()
         setupBackPress()
@@ -108,7 +124,7 @@ class AppChooserActivity : AppCompatActivity() {
             val pm = packageManager
             val packages = try {
                 pm.getInstalledApplications(PackageManager.GET_META_DATA)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 emptyList<ApplicationInfo>()
             }
             val currentAllowed = UltraBatterySaver.getAllowedApps(this).toMutableSet()
@@ -119,6 +135,9 @@ class AppChooserActivity : AppCompatActivity() {
 
             for (app in packages) {
                 if (app.packageName == packageName) continue
+
+                if (!app.enabled) continue
+                if ((app.flags and ApplicationInfo.FLAG_SUSPENDED) != 0) continue
 
                 val isSystem = (app.flags and ApplicationInfo.FLAG_SYSTEM) != 0
                 val canLaunch = pm.getLaunchIntentForPackage(app.packageName) != null
@@ -164,14 +183,12 @@ class AppChooserActivity : AppCompatActivity() {
 
     private fun getObligatoryPackageNames(): Set<String> {
         val set = mutableSetOf<String>()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            try {
-                getSystemService(TelecomManager::class.java)?.defaultDialerPackage?.let { set.add(it) }
-            } catch (_: Exception) {}
-        }
+        try {
+            getSystemService(TelecomManager::class.java)?.defaultDialerPackage?.let { set.add(it) }
+        } catch (_: Exception) {}
         try { Telephony.Sms.getDefaultSmsPackage(this)?.let { set.add(it) } } catch (_: Exception) {}
         try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"))
+            val intent = Intent(Intent.ACTION_VIEW, "http://www.google.com".toUri())
             packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)?.activityInfo?.packageName?.let { set.add(it) }
         } catch (_: Exception) {}
 
@@ -179,6 +196,7 @@ class AppChooserActivity : AppCompatActivity() {
         set.add("com.google.android.gms")
         set.add("com.google.android.gsf")
         set.add("com.android.settings")
+        set.add("com.smartpack.kernelmanager")
         return set
     }
 
@@ -186,7 +204,8 @@ class AppChooserActivity : AppCompatActivity() {
         return setOf(
             "com.android.vending",
             "com.google.android.gms",
-            "com.google.android.gsf"
+            "com.google.android.gsf",
+            "com.smartpack.kernelmanager"
         )
     }
 }

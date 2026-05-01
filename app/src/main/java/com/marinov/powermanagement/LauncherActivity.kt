@@ -5,9 +5,11 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.marinov.powermanagement.TaskerLogic.Mode
@@ -21,8 +23,8 @@ class LauncherActivity : AppCompatActivity() {
     private lateinit var tvDayOfWeek: TextView
     private lateinit var gridApps: GridLayout
 
-    private val imageViews = arrayOfNulls<ImageView>(8)
-    private val textViews = arrayOfNulls<TextView>(8)
+    private val imageViews = arrayOfNulls<ImageView>(12)
+    private val textViews = arrayOfNulls<TextView>(12)
 
     private val handler = Handler(Looper.getMainLooper())
     private val timeDateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
@@ -32,11 +34,25 @@ class LauncherActivity : AppCompatActivity() {
     private val hiddenPackages = setOf(
         "com.android.vending",
         "com.google.android.gms",
-        "com.google.android.gsf"
+        "com.google.android.gsf",
+        "com.smartpack.kernelmanager"   // ← oculto no launcher
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (TaskerLogic.getLastAppliedMode(this) != Mode.ULTRA) {
+            Toast.makeText(this, "O modo ultra econômico está desabilitado", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
+            finish()
+            return
+        }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Não faz nada, bloqueia o botão voltar
+            }
+        })
+
         setContentView(R.layout.activity_launcher)
 
         LauncherManager.currentActivity = this
@@ -49,23 +65,31 @@ class LauncherActivity : AppCompatActivity() {
         tvDayOfWeek = findViewById(R.id.tv_day_of_week)
         gridApps = findViewById(R.id.grid_apps)
 
-        imageViews[0] = findViewById<ImageView>(R.id.app_slot_1)
-        imageViews[1] = findViewById<ImageView>(R.id.app_slot_2)
-        imageViews[2] = findViewById<ImageView>(R.id.app_slot_3)
-        imageViews[3] = findViewById<ImageView>(R.id.app_slot_4)
-        imageViews[4] = findViewById<ImageView>(R.id.app_slot_5)
-        imageViews[5] = findViewById<ImageView>(R.id.app_slot_6)
-        imageViews[6] = findViewById<ImageView>(R.id.app_slot_7)
-        imageViews[7] = findViewById<ImageView>(R.id.app_slot_8)
+        imageViews[0] = findViewById(R.id.app_slot_1)
+        imageViews[1] = findViewById(R.id.app_slot_2)
+        imageViews[2] = findViewById(R.id.app_slot_3)
+        imageViews[3] = findViewById(R.id.app_slot_4)
+        imageViews[4] = findViewById(R.id.app_slot_5)
+        imageViews[5] = findViewById(R.id.app_slot_6)
+        imageViews[6] = findViewById(R.id.app_slot_7)
+        imageViews[7] = findViewById(R.id.app_slot_8)
+        imageViews[8] = findViewById(R.id.app_slot_9)
+        imageViews[9] = findViewById(R.id.app_slot_10)
+        imageViews[10] = findViewById(R.id.app_slot_11)
+        imageViews[11] = findViewById(R.id.app_slot_12)
 
-        textViews[0] = findViewById<TextView>(R.id.app_label_1)
-        textViews[1] = findViewById<TextView>(R.id.app_label_2)
-        textViews[2] = findViewById<TextView>(R.id.app_label_3)
-        textViews[3] = findViewById<TextView>(R.id.app_label_4)
-        textViews[4] = findViewById<TextView>(R.id.app_label_5)
-        textViews[5] = findViewById<TextView>(R.id.app_label_6)
-        textViews[6] = findViewById<TextView>(R.id.app_label_7)
-        textViews[7] = findViewById<TextView>(R.id.app_label_8)
+        textViews[0] = findViewById(R.id.app_label_1)
+        textViews[1] = findViewById(R.id.app_label_2)
+        textViews[2] = findViewById(R.id.app_label_3)
+        textViews[3] = findViewById(R.id.app_label_4)
+        textViews[4] = findViewById(R.id.app_label_5)
+        textViews[5] = findViewById(R.id.app_label_6)
+        textViews[6] = findViewById(R.id.app_label_7)
+        textViews[7] = findViewById(R.id.app_label_8)
+        textViews[8] = findViewById(R.id.app_label_9)
+        textViews[9] = findViewById(R.id.app_label_10)
+        textViews[10] = findViewById(R.id.app_label_11)
+        textViews[11] = findViewById(R.id.app_label_12)
 
         loadAllowedApps()
         updateClock()
@@ -89,9 +113,9 @@ class LauncherActivity : AppCompatActivity() {
         val pm = packageManager
         val allowedPackages = UltraBatterySaver.getAllowedApps(this)
             .filterNot { it in hiddenPackages }
-            .take(8)
+            .take(12)
 
-        for (i in 0 until 8) {
+        for (i in 0 until 12) {
             val iconView = imageViews[i] ?: continue
             val labelView = textViews[i] ?: continue
 
@@ -109,11 +133,11 @@ class LauncherActivity : AppCompatActivity() {
                             val intent = pm.getLaunchIntentForPackage(packageName)
                             if (intent != null) startActivity(intent)
                             else Toast.makeText(this, "Não foi possível abrir.", Toast.LENGTH_SHORT).show()
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             Toast.makeText(this, "Erro.", Toast.LENGTH_SHORT).show()
                         }
                     }
-                } catch (e: PackageManager.NameNotFoundException) {
+                } catch (_: PackageManager.NameNotFoundException) {
                     setEmptySlot(iconView, labelView)
                 }
             } else {
@@ -136,7 +160,7 @@ class LauncherActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        updateClock() // força atualização imediata
+        updateClock()
         handler.post(updateRunnable)
     }
 
@@ -148,7 +172,7 @@ class LauncherActivity : AppCompatActivity() {
     private val updateRunnable = object : Runnable {
         override fun run() {
             updateClock()
-            handler.postDelayed(this, 1000) // atualiza a cada 1 segundo
+            handler.postDelayed(this, 1000)
         }
     }
 

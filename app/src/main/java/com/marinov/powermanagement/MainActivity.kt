@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
@@ -16,6 +15,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.toColorInt
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.marinov.powermanagement.TaskerLogic.Mode
@@ -64,10 +64,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (!UltraBatterySaver.isInitialSetupComplete(this)) {
+        if (!ModeLogic.isInitialSetupComplete(this)) {
             startActivity(Intent(this, WelcomeActivity::class.java))
             finish()
             return
+        }
+
+        val currentMode = TaskerLogic.getLastAppliedMode(this)
+        if (currentMode != Mode.ULTRA) {
+            UltraBatterySaver.unsuspendAllSuspendedApps(this)
         }
 
         setContentView(R.layout.activity_main)
@@ -139,17 +144,16 @@ class MainActivity : AppCompatActivity() {
         tvBatteryPercent.text = "$percent%"
 
         val color = when {
-            percent <= 15 -> Color.parseColor("#D32F2F")
-            percent <= 40 -> Color.parseColor("#FBC02D")
-            else -> Color.parseColor("#388E3C")
+            percent <= 15 -> "#D32F2F".toColorInt()
+            percent <= 40 -> "#FBC02D".toColorInt()
+            else -> "#388E3C".toColorInt()
         }
         batteryProgress.setIndicatorColor(color)
 
         if (isCharging) {
             tvBatteryTime.text = "Carregando..."
         } else {
-            val timeText = estimateRemainingTime(percent)
-            tvBatteryTime.text = timeText
+            tvBatteryTime.text = estimateRemainingTime(percent)
         }
     }
 
@@ -178,8 +182,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleModeSelection(mode: Mode) {
         if (mode == Mode.ULTRA && !UltraBatterySaver.isUltraSetupComplete(this)) {
-            startActivity(Intent(this, UltraSetupActivity::class.java))
-            return
+            // Em vez de UltraSetupActivity, abre diretamente o seletor de apps
+            startActivity(Intent(this, AppChooserActivity::class.java).apply {
+                putExtra("ultra_setup", true)
+            })
+            return   // NÃO fecha a MainActivity
         }
         val success = ModeLogic.applyModeWithLauncher(this, mode)
         if (success) {
@@ -226,7 +233,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val labels = launcherItems.map { it.first }.toTypedArray()
-        val currentComponent = UltraBatterySaver.getDefaultLauncherComponent(this)
+        val currentComponent = ModeLogic.getDefaultLauncherComponent(this)
         var selectedIndex = launcherItems.indexOfFirst { it.second == currentComponent }
         if (selectedIndex == -1) selectedIndex = 0
 
@@ -236,7 +243,7 @@ class MainActivity : AppCompatActivity() {
                 val selectedComponent = launcherItems[which].second
                 val parts = selectedComponent.split("/")
                 if (parts.size == 2) {
-                    UltraBatterySaver.setDefaultLauncher(this, parts[0], parts[1])
+                    ModeLogic.setDefaultLauncher(this, parts[0], parts[1])
                     Toast.makeText(this, "Launcher padrão atualizado.", Toast.LENGTH_SHORT).show()
                 }
                 dialog.dismiss()

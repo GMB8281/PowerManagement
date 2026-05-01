@@ -1,10 +1,11 @@
 package com.marinov.powermanagement
 
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.widget.*
+import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -27,7 +28,7 @@ class WelcomeActivity : AppCompatActivity() {
     private val profilePickerLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+        if (result.resultCode == RESULT_OK && result.data != null) {
             val mode = currentModeForPicker ?: return@registerForActivityResult
             val name = TaskerLogic.extractProfileName(result.data) ?: "Desconhecido"
             val data = TaskerLogic.extractProfileData(result.data) ?: return@registerForActivityResult
@@ -53,8 +54,7 @@ class WelcomeActivity : AppCompatActivity() {
         tvStatusUltra = findViewById(R.id.tv_status_ultra)
         btnNext = findViewById(R.id.btn_next)
 
-        // Pré‑marca os modos que já possuem perfil salvo (pode recomeçar)
-        for (mode in Mode.values()) {
+        for (mode in Mode.entries) {
             if (TaskerLogic.getProfileData(this, mode) != null) {
                 configuredModes.add(mode)
             }
@@ -90,7 +90,7 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     private fun checkAllConfigured() {
-        btnNext.isEnabled = configuredModes.size == Mode.values().size
+        btnNext.isEnabled = configuredModes.size == Mode.entries.size
     }
 
     private fun showLauncherPickerAndFinish() {
@@ -112,7 +112,7 @@ class WelcomeActivity : AppCompatActivity() {
                 val selectedComponent = launcherItems[which].second
                 val parts = selectedComponent.split("/")
                 if (parts.size == 2) {
-                    UltraBatterySaver.setDefaultLauncher(this, parts[0], parts[1])
+                    ModeLogic.setDefaultLauncher(this, parts[0], parts[1])
                 }
                 dialog.dismiss()
                 finishSetup()
@@ -122,7 +122,7 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     private fun finishSetup() {
-        UltraBatterySaver.setInitialSetupComplete(this, true)
+        ModeLogic.setInitialSetupComplete(this, true)
         startActivity(Intent(this, MainActivity::class.java))
         finish()
     }

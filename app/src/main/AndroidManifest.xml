@@ -49,7 +49,6 @@
             android:exported="false" />
 
         <activity android:name=".ModeSettingsActivity" />
-        <activity android:name=".UltraSetupActivity" />
         <activity android:name=".WelcomeActivity" />
 
         <!-- Quick Settings Tiles -->

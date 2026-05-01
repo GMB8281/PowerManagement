@@ -3,10 +3,10 @@ package com.marinov.powermanagement
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
+import androidx.core.content.edit
 
 object TaskerLogic {
 
@@ -53,9 +53,6 @@ object TaskerLogic {
         }
     }
 
-    fun getProfileName(context: Context, mode: Mode): String? =
-        getPrefs(context).getString(nameKey(mode), null)
-
     fun getProfileData(context: Context, mode: Mode): String? =
         getPrefs(context).getString(dataKey(mode), null)
 
@@ -63,7 +60,7 @@ object TaskerLogic {
         getPrefs(context).getInt(versionKey(mode), 1)
 
     fun saveLastAppliedMode(context: Context, mode: Mode) {
-        getPrefs(context).edit().putString(KEY_LAST_APPLIED, mode.name).apply()
+        getPrefs(context).edit { putString(KEY_LAST_APPLIED, mode.name) }
     }
 
     fun getLastAppliedMode(context: Context): Mode? {
@@ -83,7 +80,7 @@ object TaskerLogic {
                 requestCode
             )
             true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Toast.makeText(activity, "Erro ao abrir o Smartpack", Toast.LENGTH_SHORT).show()
             false
         }

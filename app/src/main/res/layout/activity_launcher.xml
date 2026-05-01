@@ -59,10 +59,10 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_marginTop="32dp"
-            android:columnCount="2"
+            android:columnCount="3"
             android:rowCount="4"
             android:alignmentMode="alignBounds"
-            android:padding="0dp">
+            android:padding="4dp">
 
             <!-- Slot 1 -->
             <LinearLayout
@@ -73,12 +73,12 @@
                 android:layout_rowWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="2dp"
+                android:padding="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless">
                 <ImageView
                     android:id="@+id/app_slot_1"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:scaleType="centerInside"
                     android:src="@android:drawable/ic_menu_add" />
                 <TextView
@@ -101,12 +101,12 @@
                 android:layout_rowWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="2dp"
+                android:padding="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless">
                 <ImageView
                     android:id="@+id/app_slot_2"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:scaleType="centerInside"
                     android:src="@android:drawable/ic_menu_add" />
                 <TextView
@@ -129,12 +129,12 @@
                 android:layout_rowWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="2dp"
+                android:padding="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless">
                 <ImageView
                     android:id="@+id/app_slot_3"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:scaleType="centerInside"
                     android:src="@android:drawable/ic_menu_add" />
                 <TextView
@@ -157,12 +157,12 @@
                 android:layout_rowWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="2dp"
+                android:padding="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless">
                 <ImageView
                     android:id="@+id/app_slot_4"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:scaleType="centerInside"
                     android:src="@android:drawable/ic_menu_add" />
                 <TextView
@@ -185,12 +185,12 @@
                 android:layout_rowWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="2dp"
+                android:padding="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless">
                 <ImageView
                     android:id="@+id/app_slot_5"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:scaleType="centerInside"
                     android:src="@android:drawable/ic_menu_add" />
                 <TextView
@@ -213,12 +213,12 @@
                 android:layout_rowWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="2dp"
+                android:padding="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless">
                 <ImageView
                     android:id="@+id/app_slot_6"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:scaleType="centerInside"
                     android:src="@android:drawable/ic_menu_add" />
                 <TextView
@@ -241,12 +241,12 @@
                 android:layout_rowWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="2dp"
+                android:padding="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless">
                 <ImageView
                     android:id="@+id/app_slot_7"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:scaleType="centerInside"
                     android:src="@android:drawable/ic_menu_add" />
                 <TextView
@@ -269,12 +269,12 @@
                 android:layout_rowWeight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="2dp"
+                android:padding="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless">
                 <ImageView
                     android:id="@+id/app_slot_8"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:scaleType="centerInside"
                     android:src="@android:drawable/ic_menu_add" />
                 <TextView
@@ -287,6 +287,119 @@
                     android:ellipsize="end"
                     android:layout_marginTop="2dp" />
             </LinearLayout>
+
+            <!-- Slot 9 -->
+            <LinearLayout
+                android:id="@+id/slot_9"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless">
+                <ImageView
+                    android:id="@+id/app_slot_9"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="centerInside"
+                    android:src="@android:drawable/ic_menu_add" />
+                <TextView
+                    android:id="@+id/app_label_9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
+            <!-- Slot 10 -->
+            <LinearLayout
+                android:id="@+id/slot_10"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless">
+                <ImageView
+                    android:id="@+id/app_slot_10"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="centerInside"
+                    android:src="@android:drawable/ic_menu_add" />
+                <TextView
+                    android:id="@+id/app_label_10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
+            <!-- Slot 11 -->
+            <LinearLayout
+                android:id="@+id/slot_11"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless">
+                <ImageView
+                    android:id="@+id/app_slot_11"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="centerInside"
+                    android:src="@android:drawable/ic_menu_add" />
+                <TextView
+                    android:id="@+id/app_label_11"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
+            <!-- Slot 12 -->
+            <LinearLayout
+                android:id="@+id/slot_12"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless">
+                <ImageView
+                    android:id="@+id/app_slot_12"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="centerInside"
+                    android:src="@android:drawable/ic_menu_add" />
+                <TextView
+                    android:id="@+id/app_label_12"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
         </GridLayout>
     </LinearLayout>
 </LinearLayout>
