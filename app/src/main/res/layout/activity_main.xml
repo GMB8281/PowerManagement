@@ -336,7 +336,7 @@
                     <ImageView
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@drawable/ic_performance"
+                        android:src="@drawable/ic_launcher"
                         android:contentDescription="Launcher" />
 
                     <LinearLayout
