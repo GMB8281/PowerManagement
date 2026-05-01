@@ -1,5 +1,7 @@
 package com.marinov.powermanagement.tiles
 
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
@@ -39,6 +41,26 @@ abstract class BaseTileService : TileService() {
 
         qsTile?.state = Tile.STATE_INACTIVE
         qsTile?.updateTile()
+
+        collapseStatusBar()
+    }
+
+    private fun collapseStatusBar() {
+        val intent = Intent(this, CollapseActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // API 34+: startActivityAndCollapse(Intent) foi depreciado, usa PendingIntent
+            val pending = PendingIntent.getActivity(
+                this, 0, intent, PendingIntent.FLAG_IMMUTABLE
+            )
+            startActivityAndCollapse(pending)
+        } else {
+            // API 24–33
+            @Suppress("DEPRECATION")
+            startActivityAndCollapse(intent)
+        }
     }
 }
 

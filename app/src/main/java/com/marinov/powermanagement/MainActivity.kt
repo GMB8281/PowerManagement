@@ -1,6 +1,5 @@
 package com.marinov.powermanagement
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -11,11 +10,12 @@ import android.graphics.Color
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
-import android.widget.*
-import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.ImageButton
+import android.widget.RadioButton
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.marinov.powermanagement.TaskerLogic.Mode
@@ -38,10 +38,6 @@ class MainActivity : AppCompatActivity() {
 
     private var isBatteryReceiverRegistered = false
     private var isModeReceiverRegistered = false
-
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { }
 
     private val batteryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -136,15 +132,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestPermissionsAndRoot() {
         Thread { RootCommands.isRootAvailable() }.start()
-        val permissionsToRequest = mutableListOf<String>()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-        if (permissionsToRequest.isNotEmpty()) {
-            requestPermissionLauncher.launch(permissionsToRequest.toTypedArray())
-        }
     }
 
     private fun updateBatteryUI(percent: Int, isCharging: Boolean) {
