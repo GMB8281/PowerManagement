@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.card.MaterialCardView
@@ -27,12 +28,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cardPerformance: MaterialCardView
     private lateinit var cardStandard: MaterialCardView
     private lateinit var cardUltra: MaterialCardView
+    private lateinit var cardChangeLauncher: MaterialCardView
 
     private lateinit var batteryProgress: CircularProgressIndicator
     private lateinit var tvBatteryPercent: TextView
     private lateinit var tvBatteryTime: TextView
 
     private var lastAppliedMode: Mode? = null
+
+    private var isBatteryReceiverRegistered = false
+    private var isModeReceiverRegistered = false
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -62,6 +67,13 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!UltraBatterySaver.isInitialSetupComplete(this)) {
+            startActivity(Intent(this, WelcomeActivity::class.java))
+            finish()
+            return
+        }
+
         setContentView(R.layout.activity_main)
 
         requestPermissionsAndRoot()
@@ -77,8 +89,10 @@ class MainActivity : AppCompatActivity() {
         cardPerformance = findViewById(R.id.card_performance)
         cardStandard = findViewById(R.id.card_standard)
         cardUltra = findViewById(R.id.card_ultra)
+        cardChangeLauncher = findViewById(R.id.card_change_launcher)
 
         registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        isBatteryReceiverRegistered = true
 
         val filter = IntentFilter(TaskerLogic.ACTION_MODE_APPLIED)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -86,10 +100,12 @@ class MainActivity : AppCompatActivity() {
         } else {
             registerReceiver(modeChangedReceiver, filter)
         }
+        isModeReceiverRegistered = true
 
         cardPerformance.setOnClickListener { handleModeSelection(Mode.PERFORMANCE) }
         cardStandard.setOnClickListener { handleModeSelection(Mode.STANDARD) }
         cardUltra.setOnClickListener { handleModeSelection(Mode.ULTRA) }
+        cardChangeLauncher.setOnClickListener { showLauncherPicker() }
 
         findViewById<ImageButton>(R.id.btn_config_performance).setOnClickListener {
             openSettingsScreen(Mode.PERFORMANCE)
@@ -110,10 +126,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(batteryReceiver)
-        try {
-            unregisterReceiver(modeChangedReceiver)
-        } catch (e: IllegalArgumentException) { }
+        if (isBatteryReceiverRegistered) {
+            try { unregisterReceiver(batteryReceiver) } catch (_: Exception) {}
+        }
+        if (isModeReceiverRegistered) {
+            try { unregisterReceiver(modeChangedReceiver) } catch (_: Exception) {}
+        }
     }
 
     private fun requestPermissionsAndRoot() {
@@ -149,11 +167,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun estimateRemainingTime(percent: Int): String {
-        val bm = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+        val bm = getSystemService(BATTERY_SERVICE) as BatteryManager
         val chargeCounter = bm.getLongProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)
         val currentAvg = bm.getLongProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE)
 
-        // Se os dados oficiais estiverem disponíveis, usa‑os
         if (chargeCounter != Long.MIN_VALUE && currentAvg != Long.MIN_VALUE && currentAvg > 0) {
             val hours = chargeCounter.toFloat() / currentAvg
             if (hours > 0 && hours < 100) {
@@ -189,7 +206,7 @@ class MainActivity : AppCompatActivity() {
             finish()
         } else {
             markCurrentMode()
-            Toast.makeText(this, "Configure o perfil de kernel primeiro nas engrenagens.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Não foi possível aplicar o modo. Verifique as configurações.", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -203,5 +220,41 @@ class MainActivity : AppCompatActivity() {
         rbPerformance.isChecked = lastAppliedMode == Mode.PERFORMANCE
         rbStandard.isChecked = lastAppliedMode == Mode.STANDARD
         rbUltra.isChecked = lastAppliedMode == Mode.ULTRA
+    }
+
+    private fun showLauncherPicker() {
+        val pm = packageManager
+        val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+        val resolveInfos = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+
+        if (resolveInfos.isEmpty()) {
+            Toast.makeText(this, "Nenhum launcher encontrado.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val launcherItems = resolveInfos.map { info ->
+            val label = info.loadLabel(pm).toString()
+            val component = "${info.activityInfo.packageName}/${info.activityInfo.name}"
+            Pair(label, component)
+        }
+
+        val labels = launcherItems.map { it.first }.toTypedArray()
+        val currentComponent = UltraBatterySaver.getDefaultLauncherComponent(this)
+        var selectedIndex = launcherItems.indexOfFirst { it.second == currentComponent }
+        if (selectedIndex == -1) selectedIndex = 0
+
+        AlertDialog.Builder(this)
+            .setTitle("Alterar Launcher Padrão")
+            .setSingleChoiceItems(labels, selectedIndex) { dialog, which ->
+                val selectedComponent = launcherItems[which].second
+                val parts = selectedComponent.split("/")
+                if (parts.size == 2) {
+                    UltraBatterySaver.setDefaultLauncher(this, parts[0], parts[1])
+                    Toast.makeText(this, "Launcher padrão atualizado.", Toast.LENGTH_SHORT).show()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 }

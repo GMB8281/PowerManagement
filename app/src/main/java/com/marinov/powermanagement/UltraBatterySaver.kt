@@ -10,6 +10,7 @@ object UltraBatterySaver {
     private const val KEY_DEFAULT_LAUNCHER_PKG = "default_launcher_pkg"
     private const val KEY_DEFAULT_LAUNCHER_CLS = "default_launcher_cls"
     private const val KEY_SETUP_COMPLETE = "ultra_setup_complete"
+    private const val KEY_INITIAL_SETUP_COMPLETE = "initial_setup_complete"
 
     private fun getPrefs(context: Context): SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -40,5 +41,12 @@ object UltraBatterySaver {
         val pkg = getPrefs(context).getString(KEY_DEFAULT_LAUNCHER_PKG, null) ?: return null
         val cls = getPrefs(context).getString(KEY_DEFAULT_LAUNCHER_CLS, null) ?: return null
         return "$pkg/$cls"
+    }
+
+    fun isInitialSetupComplete(context: Context): Boolean =
+        getPrefs(context).getBoolean(KEY_INITIAL_SETUP_COMPLETE, false)
+
+    fun setInitialSetupComplete(context: Context, complete: Boolean) {
+        getPrefs(context).edit().putBoolean(KEY_INITIAL_SETUP_COMPLETE, complete).apply()
     }
 }

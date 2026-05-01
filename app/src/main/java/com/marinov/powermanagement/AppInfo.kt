@@ -7,5 +7,6 @@ class AppInfo(
     var packageName: String = "",
     var icon: Drawable? = null,
     var isChecked: Boolean = false,
-    var isObrigatorio: Boolean = false
+    var isObrigatorio: Boolean = false,
+    var isHidden: Boolean = false
 )

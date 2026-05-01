@@ -30,6 +30,10 @@ class AppChooserActivity : AppCompatActivity() {
     private lateinit var adapter: AppListAdapter
     private val mainHandler = Handler(Looper.getMainLooper())
 
+    companion object {
+        private const val MAX_SELECTABLE = 8
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_app_chooser)
@@ -41,11 +45,17 @@ class AppChooserActivity : AppCompatActivity() {
         continueButton = findViewById(R.id.continue_button)
         searchBar = findViewById(R.id.search_bar)
 
-        // Inicializamos o adapter com a lista vazia primeiro
-        adapter = AppListAdapter(mutableListOf()) { saveCurrentSelection() }
+        adapter = AppListAdapter(
+            mutableListOf(),
+            onSelectionChanged = { saveCurrentSelection() },
+            maxSelectable = MAX_SELECTABLE,
+            onMaxAttempt = {
+                Toast.makeText(this, "Só podem ser selecionados no máximo 8 apps", Toast.LENGTH_SHORT).show()
+            }
+        )
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
-        recyclerView.itemAnimator = null // Remove animações nativas para evitar piscadas na busca
+        recyclerView.itemAnimator = null
 
         continueButton.setOnClickListener { finish() }
 
@@ -58,9 +68,7 @@ class AppChooserActivity : AppCompatActivity() {
         searchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
             override fun afterTextChanged(s: Editable?) {
-                // Filtra de forma fluída no thread principal
                 filterApps(s?.toString() ?: "")
             }
         })
@@ -70,7 +78,7 @@ class AppChooserActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (!searchBar.text.isNullOrEmpty()) {
-                    searchBar.setText("") // Reseta ao invés de clear para disparar o watcher
+                    searchBar.setText("")
                 } else {
                     isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
@@ -88,9 +96,6 @@ class AppChooserActivity : AppCompatActivity() {
                 it.appName.lowercase().contains(lowerQuery) || it.packageName.lowercase().contains(lowerQuery)
             }
         }
-
-        // Atualiza a lista no adapter (certifique-se que o seu AppListAdapter
-        // atualize a lista interna e chame notifyDataSetChanged ou use DiffUtil)
         adapter.updateList(filteredList)
     }
 
@@ -108,6 +113,7 @@ class AppChooserActivity : AppCompatActivity() {
             }
             val currentAllowed = UltraBatterySaver.getAllowedApps(this).toMutableSet()
             val obligatoryPackages = getObligatoryPackageNames()
+            val hiddenPackages = getHiddenPackageNames()
 
             val loaded = mutableListOf<AppInfo>()
 
@@ -120,12 +126,14 @@ class AppChooserActivity : AppCompatActivity() {
                 if (isSystem && !canLaunch) continue
 
                 val isObrig = obligatoryPackages.contains(app.packageName)
+                val isHidden = hiddenPackages.contains(app.packageName)
                 val info = AppInfo(
                     appName = pm.getApplicationLabel(app).toString(),
                     packageName = app.packageName,
                     icon = pm.getApplicationIcon(app),
                     isChecked = isObrig || currentAllowed.contains(app.packageName),
-                    isObrigatorio = isObrig
+                    isObrigatorio = isObrig,
+                    isHidden = isHidden
                 )
                 if (isObrig) currentAllowed.add(app.packageName)
                 loaded.add(info)
@@ -138,8 +146,6 @@ class AppChooserActivity : AppCompatActivity() {
 
                 allAppsList.clear()
                 allAppsList.addAll(loaded)
-
-                // Força o filtro atual
                 filterApps(searchBar.text.toString())
 
                 progressBar.visibility = View.GONE
@@ -168,6 +174,19 @@ class AppChooserActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"))
             packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)?.activityInfo?.packageName?.let { set.add(it) }
         } catch (_: Exception) {}
+
+        set.add("com.android.vending")
+        set.add("com.google.android.gms")
+        set.add("com.google.android.gsf")
+        set.add("com.android.settings")
         return set
+    }
+
+    private fun getHiddenPackageNames(): Set<String> {
+        return setOf(
+            "com.android.vending",
+            "com.google.android.gms",
+            "com.google.android.gsf"
+        )
     }
 }

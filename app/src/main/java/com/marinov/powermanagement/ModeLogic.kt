@@ -15,7 +15,6 @@ object ModeLogic {
         TaskerLogic.applyProfile(context, data, version)
         TaskerLogic.saveLastAppliedMode(context, mode)
 
-        // Notifica interessados (MainActivity)
         val intent = Intent(TaskerLogic.ACTION_MODE_APPLIED)
         intent.setPackage(context.packageName)
         context.sendBroadcast(intent)
@@ -31,7 +30,7 @@ object ModeLogic {
                 } else {
                     Toast.makeText(context, "Nenhum launcher padrão definido. Use a engrenagem para escolher.", Toast.LENGTH_SHORT).show()
                 }
-                Toast.makeText(context, "Modo ${mode.name} aplicado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Modo ${mode.displayName} aplicado", Toast.LENGTH_SHORT).show()
             }
             Mode.ULTRA -> {
                 activateUltraMode(context)
@@ -45,7 +44,7 @@ object ModeLogic {
         if (!setHomeActivityRoot(context, ourLauncher)) {
             Toast.makeText(context, "Falha ao definir launcher Ultra. Verifique o root.", Toast.LENGTH_SHORT).show()
         }
-        Toast.makeText(context, "Modo Ultra-Econômico aplicado", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Modo ${Mode.ULTRA.displayName} aplicado", Toast.LENGTH_SHORT).show()
     }
 
     private fun setHomeActivityRoot(context: Context, component: String): Boolean {

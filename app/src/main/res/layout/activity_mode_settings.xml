@@ -25,14 +25,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tv_mode_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Modo"
-            android:textAppearance="?attr/textAppearanceHeadlineMedium"
-            android:layout_marginBottom="24dp"/>
-
         <!-- Opção Universal: Perfil Tasker -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btn_change_kernel"
@@ -74,15 +66,6 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Configurações Ultra-Econômicas"
-                android:textColor="?attr/colorPrimary"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp"/>
-
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btn_choose_apps"
                 android:layout_width="match_parent"
@@ -90,31 +73,31 @@
                 android:layout_marginBottom="12dp"
                 app:cardElevation="1dp"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     android:padding="16dp"
-                    android:text="Escolher apps permitidos"
-                    android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_sort_alphabetically"
+                        app:tint="?attr/colorOnSurfaceVariant"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Escolher apps permitidos"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btn_choose_launcher"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardElevation="1dp"
-                android:clickable="true"
-                android:focusable="true">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="Escolher Launcher Padrão (Saída)"
-                    android:textAppearance="?attr/textAppearanceTitleMedium"/>
-            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
     </LinearLayout>

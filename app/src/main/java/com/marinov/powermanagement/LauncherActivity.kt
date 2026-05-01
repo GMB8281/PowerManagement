@@ -5,12 +5,11 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.widget.Button
-import android.widget.GridLayout
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.appbar.MaterialToolbar
 import com.marinov.powermanagement.TaskerLogic.Mode
 import java.text.SimpleDateFormat
 import java.util.*
@@ -21,7 +20,6 @@ class LauncherActivity : AppCompatActivity() {
     private lateinit var tvDate: TextView
     private lateinit var tvDayOfWeek: TextView
     private lateinit var gridApps: GridLayout
-    private lateinit var btnExit: Button
 
     private val imageViews = arrayOfNulls<ImageView>(8)
     private val textViews = arrayOfNulls<TextView>(8)
@@ -31,19 +29,26 @@ class LauncherActivity : AppCompatActivity() {
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     private val dayOfWeekFormat = SimpleDateFormat("EEEE", Locale.getDefault())
 
+    private val hiddenPackages = setOf(
+        "com.android.vending",
+        "com.google.android.gms",
+        "com.google.android.gsf"
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_launcher)
 
         LauncherManager.currentActivity = this
 
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
         tvTime = findViewById(R.id.tv_time)
         tvDate = findViewById(R.id.tv_date)
         tvDayOfWeek = findViewById(R.id.tv_day_of_week)
         gridApps = findViewById(R.id.grid_apps)
-        btnExit = findViewById(R.id.btn_exit)
 
-        // Inicializa arrays de slots
         imageViews[0] = findViewById<ImageView>(R.id.app_slot_1)
         imageViews[1] = findViewById<ImageView>(R.id.app_slot_2)
         imageViews[2] = findViewById<ImageView>(R.id.app_slot_3)
@@ -62,18 +67,29 @@ class LauncherActivity : AppCompatActivity() {
         textViews[6] = findViewById<TextView>(R.id.app_label_7)
         textViews[7] = findViewById<TextView>(R.id.app_label_8)
 
-        btnExit.setOnClickListener {
-            ModeLogic.applyModeWithLauncher(this, Mode.STANDARD)
-            finish()
-        }
-
         loadAllowedApps()
         updateClock()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_launcher, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.action_exit) {
+            ModeLogic.applyModeWithLauncher(this, Mode.STANDARD)
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     private fun loadAllowedApps() {
-        val allowedPackages = UltraBatterySaver.getAllowedApps(this).toList()
         val pm = packageManager
+        val allowedPackages = UltraBatterySaver.getAllowedApps(this)
+            .filterNot { it in hiddenPackages }
+            .take(8)
 
         for (i in 0 until 8) {
             val iconView = imageViews[i] ?: continue
@@ -120,6 +136,7 @@ class LauncherActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        updateClock() // força atualização imediata
         handler.post(updateRunnable)
     }
 
@@ -131,7 +148,7 @@ class LauncherActivity : AppCompatActivity() {
     private val updateRunnable = object : Runnable {
         override fun run() {
             updateClock()
-            handler.postDelayed(this, 60_000)
+            handler.postDelayed(this, 1000) // atualiza a cada 1 segundo
         }
     }
 

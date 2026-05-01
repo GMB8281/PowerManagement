@@ -8,15 +8,16 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-// OTIMIZADO PARA A BUSCA FLUÍDA
 class AppListAdapter(
     private var appList: List<AppInfo>,
-    private val onSelectionChanged: () -> Unit
+    private val onSelectionChanged: () -> Unit,
+    private val maxSelectable: Int,
+    private val onMaxAttempt: () -> Unit
 ) : RecyclerView.Adapter<AppListAdapter.AppViewHolder>() {
 
     fun updateList(newList: List<AppInfo>) {
         this.appList = newList
-        notifyDataSetChanged() // DiffUtil seria melhor, mas notifyDataSetChanged com animação desativada é 100% fluído para buscas rápidas.
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
@@ -30,25 +31,42 @@ class AppListAdapter(
 
         holder.itemView.setOnClickListener {
             if (!app.isObrigatorio) {
+                if (!app.isChecked) {
+                    val selectedCount = appList.count { it.isChecked && !it.isHidden }
+                    if (selectedCount >= maxSelectable) {
+                        onMaxAttempt()
+                        return@setOnClickListener
+                    }
+                }
                 app.isChecked = !app.isChecked
                 holder.checkBox.isChecked = app.isChecked
+                notifyDataSetChanged()
                 onSelectionChanged()
             }
         }
 
         holder.checkBox.setOnClickListener {
             if (!app.isObrigatorio) {
+                if (!app.isChecked) {
+                    val selectedCount = appList.count { it.isChecked && !it.isHidden }
+                    if (selectedCount >= maxSelectable) {
+                        onMaxAttempt()
+                        holder.checkBox.isChecked = false
+                        return@setOnClickListener
+                    }
+                }
                 app.isChecked = holder.checkBox.isChecked
+                notifyDataSetChanged()
                 onSelectionChanged()
             } else {
-                holder.checkBox.isChecked = true // Trava forçadamente
+                holder.checkBox.isChecked = true
             }
         }
     }
 
     override fun getItemCount() = appList.size
 
-    class AppViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class AppViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val icon: ImageView = itemView.findViewById(R.id.app_icon)
         val name: TextView = itemView.findViewById(R.id.app_name)
         val pack: TextView = itemView.findViewById(R.id.app_package)
@@ -59,8 +77,19 @@ class AppListAdapter(
             name.text = appInfo.appName
             pack.text = appInfo.packageName
             checkBox.isChecked = appInfo.isChecked
-            checkBox.isEnabled = !appInfo.isObrigatorio
-            itemView.alpha = if (appInfo.isObrigatorio) 0.6f else 1.0f
+
+            val canSelect = !appInfo.isObrigatorio
+            checkBox.isEnabled = canSelect
+
+            if (!canSelect) {
+                itemView.alpha = 0.6f
+            } else {
+                val selectedCount = appList.count { it.isChecked && !it.isHidden }
+                val limitReached = selectedCount >= maxSelectable
+                val disableForLimit = !appInfo.isChecked && !appInfo.isHidden && limitReached
+                checkBox.isEnabled = !disableForLimit
+                itemView.alpha = if (disableForLimit) 0.4f else 1.0f
+            }
         }
     }
 }

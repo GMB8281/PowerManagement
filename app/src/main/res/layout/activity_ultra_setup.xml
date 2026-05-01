@@ -9,28 +9,33 @@
     android:background="?attr/colorSurface">
 
     <TextView
-        android:id="@+id/tv_step_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Passo 1"
+        android:text="Configurar Ultra-Econômico"
         android:textAppearance="?attr/textAppearanceHeadlineMedium"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>
 
     <TextView
-        android:id="@+id/tv_step_desc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Para usar a Ultra-Economia, precisamos fazer uma configuração rápida."
+        android:text="Selecione os aplicativos que poderão ser usados durante o modo Ultra-Econômico (máximo 8)."
         android:textAppearance="?attr/textAppearanceBodyLarge"
         android:gravity="center"
         android:layout_marginBottom="48dp"/>
 
     <Button
-        android:id="@+id/btn_step_action"
+        android:id="@+id/btn_choose_apps"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="Escolher Apps Permitidos"
+        android:text="Escolher Aplicativos"
         android:textAppearance="?attr/textAppearanceTitleMedium"/>
 
+    <Button
+        android:id="@+id/btn_conclude"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="Concluir"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 </LinearLayout>

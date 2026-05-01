@@ -10,7 +10,6 @@ import android.widget.Toast
 
 object TaskerLogic {
 
-    // Constantes do Smartpack
     private const val PLUGIN_PACKAGE = "com.smartpack.kernelmanager"
     private const val ACTIVITY_PROFILES = "$PLUGIN_PACKAGE.activities.tools.profile.ProfileTaskerActivity"
     const val ACTION_FIRE_SETTING = "com.twofortyfouram.locale.intent.action.FIRE_SETTING"
@@ -18,7 +17,17 @@ object TaskerLogic {
     const val EXTRA_STRING_BLURB = "com.twofortyfouram.locale.intent.extra.BLURB"
     const val BUNDLE_EXTRA_STRING_MESSAGE = "com.grarak.kerneladiutor.tasker.extra.STRING_MESSAGE"
     const val BUNDLE_EXTRA_INT_VERSION_CODE = "com.grarak.kerneladiutor.tasker.extra.INT_VERSION_CODE"
-    enum class Mode { PERFORMANCE, STANDARD, ULTRA }
+
+    enum class Mode {
+        PERFORMANCE, STANDARD, ULTRA;
+
+        val displayName: String
+            get() = when (this) {
+                PERFORMANCE -> "Performance"
+                STANDARD -> "Padrão"
+                ULTRA -> "Ultra Econômico"
+            }
+    }
 
     private const val PREFS_NAME = "power_modes"
     private const val KEY_NAME_PREFIX = "profile_name_"
@@ -69,7 +78,10 @@ object TaskerLogic {
 
     fun requestProfilePicker(activity: Activity, requestCode: Int): Boolean {
         return try {
-            activity.startActivityForResult(Intent().apply { setClassName(PLUGIN_PACKAGE, ACTIVITY_PROFILES) }, requestCode)
+            activity.startActivityForResult(
+                Intent().apply { setClassName(PLUGIN_PACKAGE, ACTIVITY_PROFILES) },
+                requestCode
+            )
             true
         } catch (e: Exception) {
             Toast.makeText(activity, "Erro ao abrir o Smartpack", Toast.LENGTH_SHORT).show()
