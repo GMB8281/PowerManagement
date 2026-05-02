@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
+import android.widget.Toast
 import androidx.core.content.edit
 
 object UltraBatterySaver {
@@ -27,8 +28,22 @@ object UltraBatterySaver {
         getPrefs(context).edit { putBoolean(KEY_SETUP_COMPLETE, complete) }
     }
 
-    fun saveAllowedApps(context: Context, apps: Set<String>) {
+    /**
+     * Salva a lista de apps permitidos, **apenas se o modo Ultra NÃO estiver ativo**.
+     * Se o modo Ultra estiver ativo, a operação é ignorada e um Toast é mostrado.
+     * @return true se salvou, false se foi bloqueado.
+     */
+    fun saveAllowedApps(context: Context, apps: Set<String>): Boolean {
+        // Proteção crítica: não permitir alteração enquanto modo Ultra está ativo
+        val currentMode = TaskerLogic.getLastAppliedMode(context)
+        if (currentMode == TaskerLogic.Mode.ULTRA) {
+            mainHandler.post {
+                Toast.makeText(context, "Não é possível alterar os apps permitidos enquanto o modo Ultra está ativo.", Toast.LENGTH_LONG).show()
+            }
+            return false
+        }
         getPrefs(context).edit { putStringSet(KEY_ALLOWED_APPS, apps) }
+        return true
     }
 
     fun getAllowedApps(context: Context): Set<String> =
@@ -77,14 +92,12 @@ object UltraBatterySaver {
                     return@Thread
                 }
 
-                // Constrói script único
                 val commands = toSuspend.map { "pm suspend $it" }
                 val success = RootCommands.runBatch(commands)
 
                 if (success) {
                     saveSuspendedPackages(context, toSuspend.toSet())
                 } else {
-                    // Se falhar, grava uma lista vazia para evitar inconsistências
                     saveSuspendedPackages(context, emptySet())
                 }
             } catch (_: Exception) {
@@ -105,8 +118,6 @@ object UltraBatterySaver {
 
                 val commands = suspended.map { "pm unsuspend $it" }
                 RootCommands.runBatch(commands)
-
-                // Mesmo que alguns falhem, limpa a lista para evitar repetições desnecessárias
                 saveSuspendedPackages(context, emptySet())
             } catch (_: Exception) {
             } finally {

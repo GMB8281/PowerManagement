@@ -6,12 +6,12 @@ import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.Toast
-import androidx.annotation.RequiresApi
+import com.marinov.powermanagement.AppChooserActivity
 import com.marinov.powermanagement.ModeLogic
 import com.marinov.powermanagement.TaskerLogic
 import com.marinov.powermanagement.TaskerLogic.Mode
+import com.marinov.powermanagement.UltraBatterySaver
 
-@RequiresApi(Build.VERSION_CODES.N)
 abstract class BaseTileService : TileService() {
 
     protected abstract val mode: Mode
@@ -32,17 +32,51 @@ abstract class BaseTileService : TileService() {
     override fun onClick() {
         super.onClick()
 
+        // Guarda 1: perfil de kernel configurado?
         val data = TaskerLogic.getProfileData(this, mode)
         if (data == null) {
-            Toast.makeText(this, "Configure primeiro o perfil para o modo $modeName", Toast.LENGTH_SHORT).show()
-        } else {
-            ModeLogic.applyModeWithLauncher(this, mode)
+            Toast.makeText(
+                this,
+                "Configure primeiro o perfil para o modo $modeName",
+                Toast.LENGTH_SHORT
+            ).show()
+            qsTile?.state = Tile.STATE_INACTIVE
+            qsTile?.updateTile()
+            return
         }
+
+        // Guarda 2 (exclusiva do Ultra): lista de apps permitidos configurada?
+        if (mode == Mode.ULTRA && !UltraBatterySaver.isUltraSetupComplete(this)) {
+            qsTile?.state = Tile.STATE_INACTIVE
+            qsTile?.updateTile()
+            openAppChooser()
+            return
+        }
+
+        ModeLogic.applyModeWithLauncher(this, mode)
 
         qsTile?.state = Tile.STATE_INACTIVE
         qsTile?.updateTile()
 
         collapseStatusBar()
+    }
+
+    private fun openAppChooser() {
+        val intent = Intent(this, AppChooserActivity::class.java).apply {
+            putExtra("ultra_setup", true)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            val pending = PendingIntent.getActivity(
+                this, 1, intent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+            startActivityAndCollapse(pending)
+        } else {
+            @Suppress("DEPRECATION")
+            startActivityAndCollapse(intent)
+        }
     }
 
     private fun collapseStatusBar() {
@@ -51,32 +85,27 @@ abstract class BaseTileService : TileService() {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            // API 34+: startActivityAndCollapse(Intent) foi depreciado, usa PendingIntent
             val pending = PendingIntent.getActivity(
                 this, 0, intent, PendingIntent.FLAG_IMMUTABLE
             )
             startActivityAndCollapse(pending)
         } else {
-            // API 24–33
             @Suppress("DEPRECATION")
             startActivityAndCollapse(intent)
         }
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 class PerformanceTileService : BaseTileService() {
     override val mode = Mode.PERFORMANCE
     override val modeName = "Performance"
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 class StandardTileService : BaseTileService() {
     override val mode = Mode.STANDARD
     override val modeName = "Padrão"
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 class UltraTileService : BaseTileService() {
     override val mode = Mode.ULTRA
     override val modeName = "Ultra‑Econômico"

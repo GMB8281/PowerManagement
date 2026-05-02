@@ -48,6 +48,10 @@
             android:excludeFromRecents="true"
             android:exported="false" />
 
+        <activity
+            android:name=".LauncherSelectionActivity"
+            android:exported="false" />
+
         <activity android:name=".ModeSettingsActivity" />
         <activity android:name=".WelcomeActivity" />
 

@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
@@ -13,7 +12,6 @@ import android.widget.ImageButton
 import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.toColorInt
 import com.google.android.material.card.MaterialCardView
@@ -217,38 +215,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showLauncherPicker() {
-        val pm = packageManager
-        val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
-        val resolveInfos = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-
-        if (resolveInfos.isEmpty()) {
-            Toast.makeText(this, "Nenhum launcher encontrado.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val launcherItems = resolveInfos.map { info ->
-            val label = info.loadLabel(pm).toString()
-            val component = "${info.activityInfo.packageName}/${info.activityInfo.name}"
-            Pair(label, component)
-        }
-
-        val labels = launcherItems.map { it.first }.toTypedArray()
-        val currentComponent = ModeLogic.getDefaultLauncherComponent(this)
-        var selectedIndex = launcherItems.indexOfFirst { it.second == currentComponent }
-        if (selectedIndex == -1) selectedIndex = 0
-
-        AlertDialog.Builder(this)
-            .setTitle("Alterar Launcher Padrão")
-            .setSingleChoiceItems(labels, selectedIndex) { dialog, which ->
-                val selectedComponent = launcherItems[which].second
-                val parts = selectedComponent.split("/")
-                if (parts.size == 2) {
-                    ModeLogic.setDefaultLauncher(this, parts[0], parts[1])
-                    Toast.makeText(this, "Launcher padrão atualizado.", Toast.LENGTH_SHORT).show()
-                }
-                dialog.dismiss()
-            }
-            .setNegativeButton("Cancelar", null)
-            .show()
+        startActivity(Intent(this, LauncherSelectionActivity::class.java))
     }
 }

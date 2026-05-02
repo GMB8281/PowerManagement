@@ -4,9 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.card.MaterialCardView
 import com.marinov.powermanagement.TaskerLogic.Mode
 
@@ -25,9 +25,20 @@ class ModeSettingsActivity : AppCompatActivity() {
         val modeString = intent.getStringExtra("MODE") ?: return finish()
         mode = Mode.valueOf(modeString)
 
-        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-        toolbar.title = "Configurações do modo ${mode.displayName}"
-        toolbar.setNavigationOnClickListener { finish() }
+        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        // Configura o título grande e subtítulo
+        val tvModeTitle = findViewById<TextView>(R.id.tv_mode_title)
+        val tvModeSubtitle = findViewById<TextView>(R.id.tv_mode_subtitle)
+        tvModeTitle.text = "Configurações do modo ${mode.displayName}"
+        tvModeSubtitle.text = when (mode) {
+            Mode.PERFORMANCE -> "Máximo desempenho para jogos e tarefas pesadas"
+            Mode.STANDARD -> "Equilíbrio ideal entre desempenho e economia"
+            Mode.ULTRA -> "Economia extrema de bateria"
+        }
 
         // Altera perfil de kernel
         findViewById<MaterialCardView>(R.id.btn_change_kernel).setOnClickListener {
@@ -40,11 +51,25 @@ class ModeSettingsActivity : AppCompatActivity() {
 
         // Configurações específicas do Ultra
         if (mode == Mode.ULTRA) {
-            findViewById<LinearLayout>(R.id.layout_ultra_settings).visibility = View.VISIBLE
-            findViewById<MaterialCardView>(R.id.btn_choose_apps).setOnClickListener {
-                startActivity(Intent(this, AppChooserActivity::class.java))
+            val layoutUltra = findViewById<LinearLayout>(R.id.layout_ultra_settings)
+            layoutUltra.visibility = View.VISIBLE
+
+            val btnChooseApps = findViewById<MaterialCardView>(R.id.btn_choose_apps)
+            val isUltraActive = TaskerLogic.getLastAppliedMode(this) == Mode.ULTRA
+
+            if (isUltraActive) {
+                btnChooseApps.alpha = 0.5f
+                btnChooseApps.isClickable = false
+                btnChooseApps.setOnClickListener(null)
+                btnChooseApps.setOnLongClickListener {
+                    Toast.makeText(this, "Não é possível alterar os apps permitidos enquanto o modo Ultra está ativo. Saia do modo Ultra primeiro.", Toast.LENGTH_LONG).show()
+                    true
+                }
+            } else {
+                btnChooseApps.setOnClickListener {
+                    startActivity(Intent(this, AppChooserActivity::class.java))
+                }
             }
-            // Removido o btn_choose_launcher
         }
     }
 
@@ -58,5 +83,10 @@ class ModeSettingsActivity : AppCompatActivity() {
             TaskerLogic.saveProfile(this, mode, name, profileData, versionCode)
             Toast.makeText(this, "Perfil '$name' salvo com sucesso!", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
     }
 }

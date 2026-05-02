@@ -3,12 +3,15 @@ package com.marinov.powermanagement
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.marinov.powermanagement.TaskerLogic.Mode
 
@@ -21,6 +24,9 @@ class WelcomeActivity : AppCompatActivity() {
     private lateinit var tvStatusStandard: TextView
     private lateinit var tvStatusUltra: TextView
     private lateinit var btnNext: Button
+    private lateinit var layoutModes: LinearLayout
+    private lateinit var layoutLauncher: LinearLayout
+    private lateinit var rvLauncherWelcome: RecyclerView
 
     private val configuredModes = mutableSetOf<Mode>()
     private var currentModeForPicker: Mode? = null
@@ -53,6 +59,11 @@ class WelcomeActivity : AppCompatActivity() {
         tvStatusStandard = findViewById(R.id.tv_status_standard)
         tvStatusUltra = findViewById(R.id.tv_status_ultra)
         btnNext = findViewById(R.id.btn_next)
+        layoutModes = findViewById(R.id.layout_modes)
+        layoutLauncher = findViewById(R.id.layout_launcher_selection)
+        rvLauncherWelcome = findViewById(R.id.rv_launcher_welcome)
+
+        layoutLauncher.visibility = View.GONE
 
         for (mode in Mode.entries) {
             if (TaskerLogic.getProfileData(this, mode) != null) {
@@ -67,7 +78,9 @@ class WelcomeActivity : AppCompatActivity() {
         cardUltra.setOnClickListener { launchProfilePicker(Mode.ULTRA) }
 
         btnNext.setOnClickListener {
-            showLauncherPickerAndFinish()
+            if (configuredModes.size == Mode.entries.size) {
+                showLauncherSelectionStep()
+            }
         }
     }
 
@@ -93,32 +106,38 @@ class WelcomeActivity : AppCompatActivity() {
         btnNext.isEnabled = configuredModes.size == Mode.entries.size
     }
 
-    private fun showLauncherPickerAndFinish() {
+    private fun showLauncherSelectionStep() {
+        layoutModes.visibility = View.GONE
+        layoutLauncher.visibility = View.VISIBLE
+        btnNext.text = "Concluir"
+        btnNext.setOnClickListener {
+            finishSetup()
+        }
+        loadLaunchersForWelcome()
+    }
+
+    private fun loadLaunchersForWelcome() {
         val pm = packageManager
         val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
         val resolveInfos = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
 
-        val launcherItems = resolveInfos.map { info ->
+        val ourPackage = packageName
+        val launchers = resolveInfos.mapNotNull { info ->
+            val packageName = info.activityInfo.packageName
+            val activityName = info.activityInfo.name
             val label = info.loadLabel(pm).toString()
-            val component = "${info.activityInfo.packageName}/${info.activityInfo.name}"
-            Pair(label, component)
+            if (packageName == ourPackage || label.isBlank()) return@mapNotNull null
+            val icon = info.loadIcon(pm)
+            LauncherInfo(packageName, activityName, label, icon)
+        }.sortedBy { it.label.lowercase() }
+
+        val adapter = LauncherAdapter(launchers) { launcher ->
+            ModeLogic.setDefaultLauncher(this, launcher.packageName, launcher.activityName)
+            Toast.makeText(this, "Launcher padrão definido: ${launcher.label}", Toast.LENGTH_SHORT).show()
+            finishSetup()
         }
-
-        val labels = launcherItems.map { it.first }.toTypedArray()
-
-        AlertDialog.Builder(this)
-            .setTitle("Escolher Launcher Principal")
-            .setSingleChoiceItems(labels, -1) { dialog, which ->
-                val selectedComponent = launcherItems[which].second
-                val parts = selectedComponent.split("/")
-                if (parts.size == 2) {
-                    ModeLogic.setDefaultLauncher(this, parts[0], parts[1])
-                }
-                dialog.dismiss()
-                finishSetup()
-            }
-            .setCancelable(false)
-            .show()
+        rvLauncherWelcome.layoutManager = LinearLayoutManager(this)
+        rvLauncherWelcome.adapter = adapter
     }
 
     private fun finishSetup() {

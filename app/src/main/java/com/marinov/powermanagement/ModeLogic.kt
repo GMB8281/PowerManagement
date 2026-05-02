@@ -3,9 +3,11 @@ package com.marinov.powermanagement
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
-import com.marinov.powermanagement.TaskerLogic.Mode
 import androidx.core.content.edit
+import com.marinov.powermanagement.TaskerLogic.Mode
 
 object ModeLogic {
 
@@ -39,6 +41,13 @@ object ModeLogic {
     }
 
     fun applyModeWithLauncher(context: Context, mode: Mode): Boolean {
+        val currentMode = TaskerLogic.getLastAppliedMode(context)
+        if (currentMode == Mode.ULTRA && mode == Mode.ULTRA) {
+            Handler(Looper.getMainLooper()).post{
+            }
+            return true
+        }
+
         val data = TaskerLogic.getProfileData(context, mode) ?: return false
 
         val version = TaskerLogic.getVersionCode(context, mode)
@@ -51,17 +60,14 @@ object ModeLogic {
         intent.setPackage(context.packageName)
         context.sendBroadcast(intent)
 
-        // Se estava em ULTRA e vai sair, inicia a desuspensão em background
         if (previousMode == Mode.ULTRA && mode != Mode.ULTRA) {
             UltraBatterySaver.unsuspendAllSuspendedApps(context) {
-                // Opcional: notificar que a desuspensão terminou
                 Toast.makeText(context, "Apps restaurados.", Toast.LENGTH_SHORT).show()
             }
         }
 
         when (mode) {
             Mode.PERFORMANCE, Mode.STANDARD -> {
-                // Fecha o launcher ultra se estiver ativo
                 try { LauncherManager.finishIfActive() } catch (_: Exception) {}
                 val launcherComponent = getDefaultLauncherComponent(context)
                 if (launcherComponent != null) {
@@ -69,18 +75,14 @@ object ModeLogic {
                         Toast.makeText(context, "Falha ao trocar launcher. Verifique o acesso root.", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    Toast.makeText(context, "Nenhum launcher padrão definido. Use a engrenagem para escolher.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Nenhum launcher padrão definido.", Toast.LENGTH_SHORT).show()
                 }
                 Toast.makeText(context, "Modo ${mode.displayName} aplicado", Toast.LENGTH_SHORT).show()
             }
             Mode.ULTRA -> {
-                // Define o nosso launcher primeiro (para segurança)
                 activateUltraMode(context)
-
-                // Depois suspende os apps não permitidos em background
                 if (RootCommands.isRootAvailable()) {
                     UltraBatterySaver.suspendNonAllowedApps(context) {
-                        // Opcional: Toast ao terminar
                         Toast.makeText(context, "Apps suspensos.", Toast.LENGTH_SHORT).show()
                     }
                 } else {
@@ -93,7 +95,20 @@ object ModeLogic {
 
     private fun activateUltraMode(context: Context) {
         val ourLauncher = "${context.packageName}/.LauncherActivity"
-        if (!setHomeActivityRoot(context, ourLauncher)) {
+        val success = setHomeActivityRoot(context, ourLauncher)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            try {
+                val launchIntent = Intent(context, LauncherActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                }
+                context.applicationContext.startActivity(launchIntent)
+            } catch (e: Exception) {
+                Toast.makeText(context, "Não foi possível abrir o launcher Ultra: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }, 250)
+
+        if (!success) {
             Toast.makeText(context, "Falha ao definir launcher Ultra. Verifique o root.", Toast.LENGTH_SHORT).show()
         }
         Toast.makeText(context, "Modo ${Mode.ULTRA.displayName} aplicado", Toast.LENGTH_SHORT).show()

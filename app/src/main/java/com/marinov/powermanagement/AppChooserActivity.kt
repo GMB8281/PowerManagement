@@ -40,8 +40,16 @@ class AppChooserActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_app_chooser)
 
+        // Bloqueia a activity se o modo Ultra já estiver ativo
+        val currentMode = TaskerLogic.getLastAppliedMode(this)
+        if (currentMode == TaskerLogic.Mode.ULTRA) {
+            Toast.makeText(this, "Não é possível alterar os apps permitidos enquanto o modo Ultra está ativo. Desative o modo Ultra primeiro.", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
+
+        setContentView(R.layout.activity_app_chooser)
         supportActionBar?.hide()
 
         isUltraSetup = intent.getBooleanExtra("ultra_setup", false)
@@ -178,7 +186,7 @@ class AppChooserActivity : AppCompatActivity() {
 
     private fun saveCurrentSelection() {
         val selected = allAppsList.filter { it.isChecked }.map { it.packageName }.toSet()
-        UltraBatterySaver.saveAllowedApps(this, selected)
+        UltraBatterySaver.saveAllowedApps(this, selected) // retorno ignorado, mas a função já protege internamente
     }
 
     private fun getObligatoryPackageNames(): Set<String> {
