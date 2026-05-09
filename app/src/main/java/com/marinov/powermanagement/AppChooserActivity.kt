@@ -44,7 +44,7 @@ class AppChooserActivity : AppCompatActivity() {
         // Bloqueia a activity se o modo Ultra já estiver ativo
         val currentMode = TaskerLogic.getLastAppliedMode(this)
         if (currentMode == TaskerLogic.Mode.ULTRA) {
-            Toast.makeText(this, "Não é possível alterar os apps permitidos enquanto o modo Ultra está ativo. Desative o modo Ultra primeiro.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, R.string.ultra_active_block, Toast.LENGTH_LONG).show()
             finish()
             return
         }
@@ -64,7 +64,7 @@ class AppChooserActivity : AppCompatActivity() {
             onSelectionChanged = { saveCurrentSelection() },
             maxSelectable = MAX_SELECTABLE,
             onMaxAttempt = {
-                Toast.makeText(this, "Só podem ser selecionados no máximo 12 apps", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.max_apps_toast, Toast.LENGTH_SHORT).show()
             }
         )
         recyclerView.layoutManager = LinearLayoutManager(this)

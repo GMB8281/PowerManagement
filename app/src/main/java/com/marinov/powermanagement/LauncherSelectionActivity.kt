@@ -22,21 +22,25 @@ class LauncherSelectionActivity : AppCompatActivity() {
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowTitleEnabled(false) // esconde o título da toolbar para não duplicar
+        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         recyclerView = findViewById(R.id.rv_launchers)
         recyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Carrega o launcher padrão atual
+        val currentPkg = ModeLogic.getDefaultLauncherComponent(this)?.substringBefore("/")
+
         adapter = LauncherAdapter(emptyList()) { launcher ->
             ModeLogic.setDefaultLauncher(this, launcher.packageName, launcher.activityName)
-            Toast.makeText(this, "Launcher padrão definido: ${launcher.label}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.launcher_set_toast, launcher.label), Toast.LENGTH_SHORT).show()
             finish()
         }
         recyclerView.adapter = adapter
 
-        loadLaunchers()
+        loadLaunchers(currentPkg)
     }
 
-    private fun loadLaunchers() {
+    private fun loadLaunchers(currentPkg: String?) {
         val pm = packageManager
         val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
         val resolveInfos = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
@@ -54,6 +58,7 @@ class LauncherSelectionActivity : AppCompatActivity() {
         launchersList.clear()
         launchersList.addAll(launchers)
         adapter.updateList(launchersList)
+        adapter.selectedPackage = currentPkg   // destaca o atual
     }
 
     override fun onSupportNavigateUp(): Boolean {

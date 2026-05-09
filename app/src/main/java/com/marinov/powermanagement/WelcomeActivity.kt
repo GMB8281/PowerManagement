@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
@@ -30,13 +31,15 @@ class WelcomeActivity : AppCompatActivity() {
 
     private val configuredModes = mutableSetOf<Mode>()
     private var currentModeForPicker: Mode? = null
+    private var selectedLauncherInfo: LauncherInfo? = null
+    private lateinit var welcomeLauncherAdapter: LauncherAdapter
 
     private val profilePickerLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK && result.data != null) {
             val mode = currentModeForPicker ?: return@registerForActivityResult
-            val name = TaskerLogic.extractProfileName(result.data) ?: "Desconhecido"
+            val name = TaskerLogic.extractProfileName(result.data) ?: getString(R.string.unknown_profile)
             val data = TaskerLogic.extractProfileData(result.data) ?: return@registerForActivityResult
             val version = TaskerLogic.extractVersionCode(result.data)
 
@@ -44,7 +47,7 @@ class WelcomeActivity : AppCompatActivity() {
             configuredModes.add(mode)
             updateStatusIndicators()
             checkAllConfigured()
-            Toast.makeText(this, "Perfil '$name' salvo para ${mode.displayName}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.profile_saved_toast, name), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -78,15 +81,17 @@ class WelcomeActivity : AppCompatActivity() {
         cardUltra.setOnClickListener { launchProfilePicker(Mode.ULTRA) }
 
         btnNext.setOnClickListener {
-            if (configuredModes.size == Mode.entries.size) {
+            if (configuredModes.size == Mode.entries.size && !layoutLauncher.isVisible) {
                 showLauncherSelectionStep()
+            } else if (layoutLauncher.isVisible) {
+                finishSetup()
             }
         }
     }
 
     private fun launchProfilePicker(mode: Mode) {
         if (!TaskerLogic.isPluginAvailable(this)) {
-            Toast.makeText(this, "Smartpack Kernel Manager não instalado!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.smartpack_not_installed, Toast.LENGTH_SHORT).show()
             return
         }
         currentModeForPicker = mode
@@ -97,9 +102,9 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     private fun updateStatusIndicators() {
-        tvStatusPerformance.text = if (Mode.PERFORMANCE in configuredModes) "✓ Perfil selecionado" else "Toque para selecionar"
-        tvStatusStandard.text = if (Mode.STANDARD in configuredModes) "✓ Perfil selecionado" else "Toque para selecionar"
-        tvStatusUltra.text = if (Mode.ULTRA in configuredModes) "✓ Perfil selecionado" else "Toque para selecionar"
+        tvStatusPerformance.text = if (Mode.PERFORMANCE in configuredModes) getString(R.string.profile_selected) else getString(R.string.tap_to_select)
+        tvStatusStandard.text = if (Mode.STANDARD in configuredModes) getString(R.string.profile_selected) else getString(R.string.tap_to_select)
+        tvStatusUltra.text = if (Mode.ULTRA in configuredModes) getString(R.string.profile_selected) else getString(R.string.tap_to_select)
     }
 
     private fun checkAllConfigured() {
@@ -109,18 +114,14 @@ class WelcomeActivity : AppCompatActivity() {
     private fun showLauncherSelectionStep() {
         layoutModes.visibility = View.GONE
         layoutLauncher.visibility = View.VISIBLE
-        btnNext.text = "Concluir"
-        btnNext.setOnClickListener {
-            finishSetup()
-        }
-        loadLaunchersForWelcome()
-    }
+        btnNext.text = getString(R.string.welcome_finish)
+        btnNext.isEnabled = false
 
-    private fun loadLaunchersForWelcome() {
+        val currentPkg = ModeLogic.getDefaultLauncherComponent(this)?.substringBefore("/")
+
         val pm = packageManager
         val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
         val resolveInfos = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-
         val ourPackage = packageName
         val launchers = resolveInfos.mapNotNull { info ->
             val packageName = info.activityInfo.packageName
@@ -131,16 +132,29 @@ class WelcomeActivity : AppCompatActivity() {
             LauncherInfo(packageName, activityName, label, icon)
         }.sortedBy { it.label.lowercase() }
 
-        val adapter = LauncherAdapter(launchers) { launcher ->
-            ModeLogic.setDefaultLauncher(this, launcher.packageName, launcher.activityName)
-            Toast.makeText(this, "Launcher padrão definido: ${launcher.label}", Toast.LENGTH_SHORT).show()
-            finishSetup()
+        if (currentPkg != null) {
+            selectedLauncherInfo = launchers.find { it.packageName == currentPkg }
         }
+
+        welcomeLauncherAdapter = LauncherAdapter(launchers) { launcher ->
+            ModeLogic.setDefaultLauncher(this, launcher.packageName, launcher.activityName)
+            selectedLauncherInfo = launcher
+            welcomeLauncherAdapter.selectedPackage = launcher.packageName
+            btnNext.isEnabled = true
+        }
+
+        welcomeLauncherAdapter.selectedPackage = selectedLauncherInfo?.packageName
         rvLauncherWelcome.layoutManager = LinearLayoutManager(this)
-        rvLauncherWelcome.adapter = adapter
+        rvLauncherWelcome.adapter = welcomeLauncherAdapter
     }
 
     private fun finishSetup() {
+        if (configuredModes.size != Mode.entries.size) return
+        if (layoutLauncher.isVisible && selectedLauncherInfo == null) {
+            Toast.makeText(this, R.string.select_launcher_first, Toast.LENGTH_SHORT).show()
+            return
+        }
+
         ModeLogic.setInitialSetupComplete(this, true)
         startActivity(Intent(this, MainActivity::class.java))
         finish()

@@ -148,11 +148,7 @@ class MainActivity : AppCompatActivity() {
         }
         batteryProgress.setIndicatorColor(color)
 
-        if (isCharging) {
-            tvBatteryTime.text = "Carregando..."
-        } else {
-            tvBatteryTime.text = estimateRemainingTime(percent)
-        }
+        tvBatteryTime.text = if (isCharging) getString(R.string.charging) else estimateRemainingTime(percent)
     }
 
     private fun estimateRemainingTime(percent: Int): String {
@@ -165,8 +161,8 @@ class MainActivity : AppCompatActivity() {
             if (hours > 0 && hours < 100) {
                 val h = hours.toInt()
                 val m = ((hours - h) * 60).toInt()
-                return if (h > 0) "Aprox. ${h}h ${m}min restantes"
-                else "Aprox. ${m}min restantes"
+                return if (h > 0) getString(R.string.approx_time_format, h, m)
+                else getString(R.string.approx_min_format, m)
             }
         }
 
@@ -174,8 +170,8 @@ class MainActivity : AppCompatActivity() {
         val estimatedMinutesTotal = percent * minutesPerPercent
         val hours = estimatedMinutesTotal / 60
         val mins = estimatedMinutesTotal % 60
-        return if (hours > 0) "Aprox. ${hours}h ${mins}min (estimativa)"
-        else "Aprox. ${mins}min (estimativa)"
+        return if (hours > 0) getString(R.string.estimate_format, hours, mins)
+        else getString(R.string.estimate_min_format, mins)
     }
 
     private fun handleModeSelection(mode: Mode) {
@@ -198,7 +194,7 @@ class MainActivity : AppCompatActivity() {
             finish()
         } else {
             markCurrentMode()
-            Toast.makeText(this, "Não foi possível aplicar o modo. Verifique as configurações.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, R.string.mode_apply_fail, Toast.LENGTH_LONG).show()
         }
     }
 

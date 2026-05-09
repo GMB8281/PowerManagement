@@ -48,7 +48,7 @@
                     android:id="@+id/tv_mode_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Configurações do modo"
+                    android:text="@string/mode_settings_title"
                     android:textAppearance="?attr/textAppearanceHeadlineMedium"
                     android:textColor="?android:attr/textColorPrimary"
                     android:textStyle="bold" />
@@ -58,7 +58,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Personalize o comportamento deste modo"
+                    android:text="@string/mode_settings_subtitle_performance"
                     android:textAppearance="?attr/textAppearanceBodyLarge"
                     android:textColor="?android:attr/textColorSecondary" />
             </LinearLayout>
@@ -111,7 +111,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:text="Alterar perfil de kernel"
+                        android:text="@string/change_kernel_profile"
                         android:textAppearance="?attr/textAppearanceTitleMedium"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -152,7 +152,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
-                            android:text="Escolher apps permitidos"
+                            android:text="@string/choose_allowed_apps"
                             android:textAppearance="?attr/textAppearanceTitleMedium"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>

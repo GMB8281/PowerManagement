@@ -31,7 +31,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Gerenciador de energia"
+                    android:text="@string/main_title"
                     android:textAppearance="?attr/textAppearanceHeadlineLarge"
                     android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary" />
@@ -61,6 +61,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:baselineAligned="false"
                 android:orientation="horizontal"
                 android:padding="16dp"
                 android:gravity="center_vertical"
@@ -104,7 +105,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Status da Bateria"
+                        android:text="@string/battery_status_title"
                         android:textAppearance="?attr/textAppearanceTitleLarge"
                         android:textColor="?android:attr/textColorPrimary"
                         android:textStyle="bold" />
@@ -114,7 +115,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Calculando tempo..."
+                        android:text="@string/calculating_time"
                         android:textAppearance="?attr/textAppearanceBodyLarge"
                         android:textColor="?android:attr/textColorSecondary" />
                 </LinearLayout>
@@ -123,7 +124,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Modos de Energia"
+                android:text="@string/energy_modes_title"
                 android:textAppearance="?attr/textAppearanceHeadlineSmall"
                 android:layout_marginBottom="16dp"
                 android:textStyle="bold"
@@ -151,7 +152,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:src="@drawable/ic_performance"
-                        android:contentDescription="Performance" />
+                        android:contentDescription="@string/mode_performance"/>
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -163,13 +164,13 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Performance"
+                            android:text="@string/mode_performance"
                             android:textAppearance="?attr/textAppearanceTitleMedium" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Máximo desempenho"
+                            android:text="@string/mode_performance_desc"
                             android:textAppearance="?attr/textAppearanceBodySmall" />
                     </LinearLayout>
 
@@ -210,7 +211,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:src="@drawable/ic_standard"
-                        android:contentDescription="Padrão" />
+                        android:contentDescription="@string/mode_standard" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -222,13 +223,13 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Padrão"
+                            android:text="@string/mode_standard"
                             android:textAppearance="?attr/textAppearanceTitleMedium" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Equilíbrio ideal"
+                            android:text="@string/mode_standard_desc"
                             android:textAppearance="?attr/textAppearanceBodySmall" />
                     </LinearLayout>
 
@@ -269,7 +270,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:src="@drawable/ic_ultra"
-                        android:contentDescription="Ultra Econômico" />
+                        android:contentDescription="@string/mode_ultra"/>
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -281,13 +282,13 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Ultra Econômico"
+                            android:text="@string/mode_ultra"
                             android:textAppearance="?attr/textAppearanceTitleMedium" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Bateria extrema"
+                            android:text="@string/mode_ultra_desc"
                             android:textAppearance="?attr/textAppearanceBodySmall" />
                     </LinearLayout>
 
@@ -310,7 +311,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Outras Configurações"
+                android:text="@string/other_settings_title"
                 android:textAppearance="?attr/textAppearanceHeadlineSmall"
                 android:layout_marginBottom="16dp"
                 android:textStyle="bold"
@@ -337,7 +338,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:src="@drawable/ic_launcher"
-                        android:contentDescription="Launcher" />
+                        android:contentDescription="@string/launcher_title" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -349,13 +350,13 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Alterar launcher padrão"
+                            android:text="@string/change_launcher_title"
                             android:textAppearance="?attr/textAppearanceTitleMedium" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Altera o launcher padrão usado após sair do modo ultra-econômico"
+                            android:text="@string/change_launcher_subtitle"
                             android:textAppearance="?attr/textAppearanceBodySmall" />
                     </LinearLayout>
 

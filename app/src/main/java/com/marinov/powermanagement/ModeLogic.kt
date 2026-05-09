@@ -43,7 +43,8 @@ object ModeLogic {
     fun applyModeWithLauncher(context: Context, mode: Mode): Boolean {
         val currentMode = TaskerLogic.getLastAppliedMode(context)
         if (currentMode == Mode.ULTRA && mode == Mode.ULTRA) {
-            Handler(Looper.getMainLooper()).post{
+            Handler(Looper.getMainLooper()).post {
+                // Nenhuma ação necessária
             }
             return true
         }
@@ -62,7 +63,7 @@ object ModeLogic {
 
         if (previousMode == Mode.ULTRA && mode != Mode.ULTRA) {
             UltraBatterySaver.unsuspendAllSuspendedApps(context) {
-                Toast.makeText(context, "Apps restaurados.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.apps_restored_toast, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -72,21 +73,25 @@ object ModeLogic {
                 val launcherComponent = getDefaultLauncherComponent(context)
                 if (launcherComponent != null) {
                     if (!setHomeActivityRoot(context, launcherComponent)) {
-                        Toast.makeText(context, "Falha ao trocar launcher. Verifique o acesso root.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.launcher_switch_fail, Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    Toast.makeText(context, "Nenhum launcher padrão definido.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.no_default_launcher, Toast.LENGTH_SHORT).show()
                 }
-                Toast.makeText(context, "Modo ${mode.displayName} aplicado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.mode_applied_toast, mode.displayName),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             Mode.ULTRA -> {
                 activateUltraMode(context)
                 if (RootCommands.isRootAvailable()) {
                     UltraBatterySaver.suspendNonAllowedApps(context) {
-                        Toast.makeText(context, "Apps suspensos.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.apps_suspended_toast, Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    Toast.makeText(context, "Root necessário para suspender apps.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.root_required_suspend, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -104,24 +109,32 @@ object ModeLogic {
                 }
                 context.applicationContext.startActivity(launchIntent)
             } catch (e: Exception) {
-                Toast.makeText(context, "Não foi possível abrir o launcher Ultra: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.ultra_launcher_error, e.message),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }, 250)
 
         if (!success) {
-            Toast.makeText(context, "Falha ao definir launcher Ultra. Verifique o root.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.ultra_launcher_set_fail, Toast.LENGTH_SHORT).show()
         }
-        Toast.makeText(context, "Modo ${Mode.ULTRA.displayName} aplicado", Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            context,
+            context.getString(R.string.mode_applied_toast, Mode.ULTRA.displayName),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun setHomeActivityRoot(context: Context, component: String): Boolean {
         if (!RootCommands.isRootAvailable()) {
-            Toast.makeText(context, "Acesso root não disponível.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.root_not_available, Toast.LENGTH_SHORT).show()
             return false
         }
         val success = RootCommands.run("cmd package set-home-activity $component")
         if (!success) {
-            Toast.makeText(context, "Comando root falhou.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.root_command_fail, Toast.LENGTH_SHORT).show()
         }
         return success
     }

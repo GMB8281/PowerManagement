@@ -11,11 +11,12 @@ import com.marinov.powermanagement.ModeLogic
 import com.marinov.powermanagement.TaskerLogic
 import com.marinov.powermanagement.TaskerLogic.Mode
 import com.marinov.powermanagement.UltraBatterySaver
+import com.marinov.powermanagement.R
 
 abstract class BaseTileService : TileService() {
 
     protected abstract val mode: Mode
-    protected abstract val modeName: String
+    protected abstract val modeNameResId: Int
 
     override fun onTileAdded() {
         super.onTileAdded()
@@ -35,9 +36,10 @@ abstract class BaseTileService : TileService() {
         // Guarda 1: perfil de kernel configurado?
         val data = TaskerLogic.getProfileData(this, mode)
         if (data == null) {
+            val modeName = getString(modeNameResId)
             Toast.makeText(
                 this,
-                "Configure primeiro o perfil para o modo $modeName",
+                getString(R.string.configure_mode_first, modeName),
                 Toast.LENGTH_SHORT
             ).show()
             qsTile?.state = Tile.STATE_INACTIVE
@@ -98,15 +100,15 @@ abstract class BaseTileService : TileService() {
 
 class PerformanceTileService : BaseTileService() {
     override val mode = Mode.PERFORMANCE
-    override val modeName = "Performance"
+    override val modeNameResId = R.string.mode_tile_performance
 }
 
 class StandardTileService : BaseTileService() {
     override val mode = Mode.STANDARD
-    override val modeName = "Padrão"
+    override val modeNameResId = R.string.mode_tile_standard
 }
 
 class UltraTileService : BaseTileService() {
     override val mode = Mode.ULTRA
-    override val modeName = "Ultra‑Econômico"
+    override val modeNameResId = R.string.mode_tile_ultra
 }

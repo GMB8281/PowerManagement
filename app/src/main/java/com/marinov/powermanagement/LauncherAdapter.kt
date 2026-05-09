@@ -12,6 +12,12 @@ class LauncherAdapter(
     private val onItemClick: (LauncherInfo) -> Unit
 ) : RecyclerView.Adapter<LauncherAdapter.ViewHolder>() {
 
+    var selectedPackage: String? = null
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_launcher, parent, false)
@@ -33,11 +39,18 @@ class LauncherAdapter(
         private val icon: ImageView = itemView.findViewById(R.id.iv_icon)
         private val name: TextView = itemView.findViewById(R.id.tv_name)
         private val packageNameText: TextView = itemView.findViewById(R.id.tv_package)
+        private val checkIcon: ImageView = itemView.findViewById(R.id.iv_check)
 
         fun bind(launcher: LauncherInfo) {
             icon.setImageDrawable(launcher.icon)
             name.text = launcher.label
             packageNameText.text = launcher.packageName
+
+            // Destaque do item selecionado
+            val isSelected = launcher.packageName == selectedPackage
+            checkIcon.visibility = if (isSelected) View.VISIBLE else View.GONE
+            itemView.isSelected = isSelected
+
             itemView.setOnClickListener { onItemClick(launcher) }
         }
     }

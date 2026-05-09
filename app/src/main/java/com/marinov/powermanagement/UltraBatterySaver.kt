@@ -34,11 +34,14 @@ object UltraBatterySaver {
      * @return true se salvou, false se foi bloqueado.
      */
     fun saveAllowedApps(context: Context, apps: Set<String>): Boolean {
-        // Proteção crítica: não permitir alteração enquanto modo Ultra está ativo
         val currentMode = TaskerLogic.getLastAppliedMode(context)
         if (currentMode == TaskerLogic.Mode.ULTRA) {
             mainHandler.post {
-                Toast.makeText(context, "Não é possível alterar os apps permitidos enquanto o modo Ultra está ativo.", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    context,
+                    R.string.cant_change_allowed_ultra_active,
+                    Toast.LENGTH_LONG
+                ).show()
             }
             return false
         }

@@ -28,7 +28,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:layout_marginStart="16dp">
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp">
 
             <TextView
                 android:id="@+id/tv_name"
@@ -44,5 +45,14 @@
                 android:textAppearance="?attr/textAppearanceBodySmall"
                 android:textColor="?android:attr/textColorSecondary" />
         </LinearLayout>
+
+        <!-- Indicador de seleção -->
+        <ImageView
+            android:id="@+id/iv_check"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_selected"
+            android:visibility="gone"
+            android:contentDescription="@null" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

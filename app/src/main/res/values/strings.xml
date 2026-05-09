@@ -1,8 +1,81 @@
 <resources>
-    <string name="app_name">Gerenciamento de Energia</string>
-    <string name="choose_apps_title">Escolher aplicativos permitidos</string>
-    <string name="choose_apps_subtitle">Toque nos apps que deseja manter visíveis no modo Ultra‑Econômico</string>
-    <string name="search_hint">Buscar aplicativos…</string>
-    <string name="save_apps_button">Salvar seleção</string>
-    <string name="app_icon">Ícone do aplicativo</string>
+    <string name="app_name">Power Management</string>
+    <string name="main_title">Power Manager</string>
+    <string name="continue_button">Continue</string>
+    <string name="search_hint">Search apps…</string>
+    <string name="app_icon">App icon</string>
+    <string name="app_icon_desc">App icon</string>
+
+    <string name="choose_apps_title">Choose allowed apps</string>
+    <string name="choose_apps_subtitle">Choose the apps you want to keep enabled in Ultra-Saving mode</string>
+    <string name="ultra_active_block">Allowed apps cannot be changed while Ultra mode is active. Disable Ultra mode first.</string>
+    <string name="max_apps_toast">A maximum of 12 apps can be selected</string>
+
+    <string name="launcher_title">Ultra Saving</string>
+    <string name="menu_exit">Exit</string>
+    <string name="app_launch_error">Could not open.</string>
+    <string name="app_launch_error_generic">Error.</string>
+    <string name="ultra_disabled_toast">Ultra saving mode is disabled</string>
+
+    <string name="launcher_selection_activity_title">Choose default launcher</string>
+    <string name="launcher_selection_activity_subtitle">Select the app that will be used as the primary launcher after exiting Ultra mode</string>
+    <string name="launcher_set_toast">Default launcher set to: %s</string>
+
+    <string name="battery_status_title">Battery Status</string>
+    <string name="calculating_time">Calculating time…</string>
+    <string name="charging">Charging…</string>
+    <string name="approx_time_format">Approx. %1$dh %2$dmin remaining</string>
+    <string name="approx_min_format">Approx. %1$dmin remaining</string>
+    <string name="estimate_format">Approx. %1$dh %2$dmin (estimate)</string>
+    <string name="estimate_min_format">Approx. %1$dmin (estimate)</string>
+    <string name="energy_modes_title">Power Modes</string>
+    <string name="other_settings_title">Other Settings</string>
+    <string name="change_launcher_title">Change default launcher</string>
+    <string name="change_launcher_subtitle">Changes the default launcher used after exiting ultra-saving mode</string>
+    <string name="mode_apply_fail">Could not apply mode. Check settings.</string>
+    <string name="select_launcher_first">Please select a launcher before continuing.</string>
+
+    <string name="mode_performance">Performance</string>
+    <string name="mode_standard">Standard</string>
+    <string name="mode_ultra">Ultra Saving</string>
+    <string name="mode_performance_desc">Maximum performance</string>
+    <string name="mode_standard_desc">Ideal balance</string>
+    <string name="mode_ultra_desc">Extreme battery</string>
+
+    <string name="mode_settings_title">%s mode settings</string>
+    <string name="mode_settings_subtitle_performance">Maximum performance for gaming and heavy tasks</string>
+    <string name="mode_settings_subtitle_standard">Ideal balance between performance and savings</string>
+    <string name="mode_settings_subtitle_ultra">Extreme battery saving</string>
+    <string name="change_kernel_profile">Change kernel profile</string>
+    <string name="choose_allowed_apps">Choose allowed apps</string>
+    <string name="smartpack_not_installed">Smartpack Kernel Manager not installed!</string>
+    <string name="profile_saved_toast">Profile \'%s\' saved successfully!</string>
+    <string name="cant_change_ultra_active">Allowed apps cannot be changed while Ultra mode is active. Exit Ultra mode first.</string>
+    <string name="unknown_profile">Unknown</string>
+
+    <string name="welcome_title">Welcome to Power Manager!</string>
+    <string name="select_profiles_prompt">Select appropriate power profiles:</string>
+    <string name="launcher_selection_step_subtitle">Select the app that will be used as the primary launcher after exiting Ultra mode</string>
+    <string name="welcome_continue">Continue</string>
+    <string name="welcome_finish">Finish</string>
+    <string name="tap_to_select">Tap to select</string>
+    <string name="profile_selected">✓ Profile selected</string>
+
+    <string name="configure_mode_first">First configure the profile for %s mode</string>
+    <string name="mode_tile_performance">Performance</string>
+    <string name="mode_tile_standard">Standard</string>
+    <string name="mode_tile_ultra">Ultra-Saving</string>
+
+    <string name="apps_restored_toast">Apps restored.</string>
+    <string name="launcher_switch_fail">Failed to switch launcher. Check root access.</string>
+    <string name="no_default_launcher">No default launcher defined.</string>
+    <string name="mode_applied_toast">%s mode applied</string>
+    <string name="root_required_suspend">Root required to suspend apps.</string>
+    <string name="apps_suspended_toast">Apps suspended.</string>
+    <string name="ultra_launcher_open_fail">Could not open Ultra launcher.</string>
+    <string name="ultra_launcher_set_fail">Failed to set Ultra launcher. Check root.</string>
+    <string name="root_not_available">Root access not available.</string>
+    <string name="root_command_fail">Root command failed.</string>
+    <string name="cant_change_allowed_ultra_active">Allowed apps cannot be changed while Ultra mode is active.</string>
+    <string name="ultra_launcher_error">Could not open Ultra launcher: %s</string>
 </resources>

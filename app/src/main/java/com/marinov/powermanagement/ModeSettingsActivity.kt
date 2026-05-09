@@ -33,11 +33,11 @@ class ModeSettingsActivity : AppCompatActivity() {
         // Configura o título grande e subtítulo
         val tvModeTitle = findViewById<TextView>(R.id.tv_mode_title)
         val tvModeSubtitle = findViewById<TextView>(R.id.tv_mode_subtitle)
-        tvModeTitle.text = "Configurações do modo ${mode.displayName}"
+        tvModeTitle.text = getString(R.string.mode_settings_title, mode.displayName)
         tvModeSubtitle.text = when (mode) {
-            Mode.PERFORMANCE -> "Máximo desempenho para jogos e tarefas pesadas"
-            Mode.STANDARD -> "Equilíbrio ideal entre desempenho e economia"
-            Mode.ULTRA -> "Economia extrema de bateria"
+            Mode.PERFORMANCE -> getString(R.string.mode_settings_subtitle_performance)
+            Mode.STANDARD -> getString(R.string.mode_settings_subtitle_standard)
+            Mode.ULTRA -> getString(R.string.mode_settings_subtitle_ultra)
         }
 
         // Altera perfil de kernel
@@ -45,7 +45,7 @@ class ModeSettingsActivity : AppCompatActivity() {
             if (TaskerLogic.isPluginAvailable(this)) {
                 TaskerLogic.requestProfilePicker(this, REQ_KERNEL_PROFILE)
             } else {
-                Toast.makeText(this, "Smartpack Kernel Manager não instalado!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.smartpack_not_installed, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -62,7 +62,7 @@ class ModeSettingsActivity : AppCompatActivity() {
                 btnChooseApps.isClickable = false
                 btnChooseApps.setOnClickListener(null)
                 btnChooseApps.setOnLongClickListener {
-                    Toast.makeText(this, "Não é possível alterar os apps permitidos enquanto o modo Ultra está ativo. Saia do modo Ultra primeiro.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, R.string.cant_change_ultra_active, Toast.LENGTH_LONG).show()
                     true
                 }
             } else {
@@ -76,12 +76,16 @@ class ModeSettingsActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQ_KERNEL_PROFILE && resultCode == RESULT_OK && data != null) {
-            val name = TaskerLogic.extractProfileName(data) ?: "Desconhecido"
+            val name = TaskerLogic.extractProfileName(data) ?: getString(R.string.unknown_profile)
             val profileData = TaskerLogic.extractProfileData(data) ?: return
             val versionCode = TaskerLogic.extractVersionCode(data)
 
             TaskerLogic.saveProfile(this, mode, name, profileData, versionCode)
-            Toast.makeText(this, "Perfil '$name' salvo com sucesso!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                getString(R.string.profile_saved_toast, name),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 

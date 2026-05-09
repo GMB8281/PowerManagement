@@ -42,7 +42,7 @@ class LauncherActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         if (TaskerLogic.getLastAppliedMode(this) != Mode.ULTRA) {
-            Toast.makeText(this, "O modo ultra econômico está desabilitado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.ultra_disabled_toast, Toast.LENGTH_SHORT).show()
             startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
             finish()
             return
@@ -132,9 +132,9 @@ class LauncherActivity : AppCompatActivity() {
                         try {
                             val intent = pm.getLaunchIntentForPackage(packageName)
                             if (intent != null) startActivity(intent)
-                            else Toast.makeText(this, "Não foi possível abrir.", Toast.LENGTH_SHORT).show()
+                            else Toast.makeText(this, R.string.app_launch_error, Toast.LENGTH_SHORT).show()
                         } catch (_: Exception) {
-                            Toast.makeText(this, "Erro.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, R.string.app_launch_error_generic, Toast.LENGTH_SHORT).show()
                         }
                     }
                 } catch (_: PackageManager.NameNotFoundException) {

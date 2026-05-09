@@ -1,0 +1,172 @@
+<resources>
+
+    <!-- Geral -->
+
+    <string name="app_name">Gerenciamento de Energia</string>
+
+    <string name="main_title">Gerenciador de energia</string>
+
+    <string name="continue_button">Continuar</string>
+
+    <string name="search_hint">Buscar aplicativos…</string>
+
+    <string name="app_icon">Ícone do aplicativo</string>
+
+    <string name="app_icon_desc">Ícone do app</string>
+
+
+    <!-- AppChooserActivity -->
+
+    <string name="choose_apps_title">Escolher aplicativos permitidos</string>
+
+    <string name="choose_apps_subtitle">Toque nos apps que deseja manter habilitados no modo Ultra‑Econômico</string>
+
+    <string name="ultra_active_block">Não é possível alterar os apps permitidos enquanto o modo Ultra está ativo. Desative o modo Ultra primeiro.</string>
+
+    <string name="max_apps_toast">Só podem ser selecionados no máximo 12 apps</string>
+
+
+    <!-- LauncherActivity -->
+
+    <string name="launcher_title">Ultra Econômico</string>
+
+    <string name="menu_exit">Sair</string>
+
+    <string name="app_launch_error">Não foi possível abrir.</string>
+
+    <string name="app_launch_error_generic">Erro.</string>
+
+    <string name="ultra_disabled_toast">O modo ultra econômico está desabilitado</string>
+
+
+    <!-- LauncherSelectionActivity -->
+
+    <string name="launcher_selection_activity_title">Escolha o launcher padrão</string>
+
+    <string name="launcher_selection_activity_subtitle">Selecione o aplicativo que será usado como launcher principal após sair do modo Ultra</string>
+
+    <string name="launcher_set_toast">Launcher padrão definido: %s</string>
+
+
+    <!-- MainActivity -->
+
+    <string name="battery_status_title">Status da Bateria</string>
+
+    <string name="calculating_time">Calculando tempo…</string>
+
+    <string name="charging">Carregando…</string>
+
+    <string name="approx_time_format">Aprox. %1$dh %2$dmin restantes</string>
+
+    <string name="approx_min_format">Aprox. %1$dmin restantes</string>
+
+    <string name="estimate_format">Aprox. %1$dh %2$dmin (estimativa)</string>
+
+    <string name="estimate_min_format">Aprox. %1$dmin (estimativa)</string>
+
+    <string name="energy_modes_title">Modos de Energia</string>
+
+    <string name="other_settings_title">Outras Configurações</string>
+
+    <string name="change_launcher_title">Alterar launcher padrão</string>
+
+    <string name="change_launcher_subtitle">Altera o launcher padrão usado após sair do modo ultra-econômico</string>
+
+    <string name="mode_apply_fail">Não foi possível aplicar o modo. Verifique as configurações.</string>
+
+    <string name="select_launcher_first">Selecione um launcher antes de continuar.</string>
+
+
+    <!-- Modos -->
+
+    <string name="mode_performance">Performance</string>
+
+    <string name="mode_standard">Padrão</string>
+
+    <string name="mode_ultra">Ultra Econômico</string>
+
+    <string name="mode_performance_desc">Máximo desempenho</string>
+
+    <string name="mode_standard_desc">Equilíbrio ideal</string>
+
+    <string name="mode_ultra_desc">Bateria extrema</string>
+
+
+    <!-- ModeSettingsActivity -->
+
+    <string name="mode_settings_title">Configurações do modo %s</string>
+
+    <string name="mode_settings_subtitle_performance">Máximo desempenho para jogos e tarefas pesadas</string>
+
+    <string name="mode_settings_subtitle_standard">Equilíbrio ideal entre desempenho e economia</string>
+
+    <string name="mode_settings_subtitle_ultra">Economia extrema de bateria</string>
+
+    <string name="change_kernel_profile">Alterar perfil de kernel</string>
+
+    <string name="choose_allowed_apps">Escolher apps permitidos</string>
+
+    <string name="smartpack_not_installed">Smartpack Kernel Manager não instalado!</string>
+
+    <string name="profile_saved_toast">Perfil \'%s\' salvo com sucesso!</string>
+
+    <string name="cant_change_ultra_active">Não é possível alterar os apps permitidos enquanto o modo Ultra está ativo. Saia do modo Ultra primeiro.</string>
+
+    <string name="unknown_profile">Desconhecido</string>
+
+
+    <!-- WelcomeActivity -->
+
+    <string name="welcome_title">Bem vindo ao gerenciador de energia!</string>
+
+    <string name="select_profiles_prompt">Selecione os perfis de energia adequados:</string>
+
+    <string name="launcher_selection_step_subtitle">Selecione o aplicativo que será usado como launcher principal após sair do modo Ultra</string>
+
+    <string name="welcome_continue">Continuar</string>
+
+    <string name="welcome_finish">Concluir</string>
+
+    <string name="tap_to_select">Toque para selecionar</string>
+
+    <string name="profile_selected">✓ Perfil selecionado</string>
+
+
+    <!-- QuickSettingsTile -->
+
+    <string name="configure_mode_first">Configure primeiro o perfil para o modo %s</string>
+
+    <string name="mode_tile_performance">Performance</string>
+
+    <string name="mode_tile_standard">Padrão</string>
+
+    <string name="mode_tile_ultra">Ultra‑Econômico</string>
+
+
+    <!-- ModeLogic / UltraBatterySaver / RootCommands -->
+
+    <string name="apps_restored_toast">Apps restaurados.</string>
+
+    <string name="launcher_switch_fail">Falha ao trocar launcher. Verifique o acesso root.</string>
+
+    <string name="no_default_launcher">Nenhum launcher padrão definido.</string>
+
+    <string name="mode_applied_toast">Modo %s aplicado</string>
+
+    <string name="root_required_suspend">Root necessário para suspender apps.</string>
+
+    <string name="apps_suspended_toast">Apps suspensos.</string>
+
+    <string name="ultra_launcher_open_fail">Não foi possível abrir o launcher Ultra.</string>
+
+    <string name="ultra_launcher_set_fail">Falha ao definir launcher Ultra. Verifique o root.</string>
+
+    <string name="root_not_available">Acesso root não disponível.</string>
+
+    <string name="root_command_fail">Comando root falhou.</string>
+
+    <string name="cant_change_allowed_ultra_active">Não é possível alterar os apps permitidos enquanto o modo Ultra está ativo.</string>
+
+    <string name="ultra_launcher_error">Não foi possível abrir o launcher Ultra: %s</string>
+
+</resources>

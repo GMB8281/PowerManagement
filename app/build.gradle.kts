@@ -5,17 +5,16 @@ plugins {
 android {
     namespace = "com.marinov.powermanagement"
     compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
+        version = release(37) {
         }
     }
 
     defaultConfig {
         applicationId = "com.marinov.powermanagement"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
-        versionName = "2.0"
+        versionName = "2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
