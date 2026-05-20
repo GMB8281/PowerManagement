@@ -31,12 +31,29 @@ class LauncherActivity : AppCompatActivity() {
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     private val dayOfWeekFormat = SimpleDateFormat("EEEE", Locale.getDefault())
 
-    private val hiddenPackages = setOf(
-        "com.android.vending",
-        "com.google.android.gms",
-        "com.google.android.gsf",
-        "com.smartpack.kernelmanager"   // ← oculto no launcher
-    )
+    // BUG 1 FIX: hiddenPackages agora inclui Magisk e VPNs detectadas dinamicamente.
+    // Lazy garante que é calculado uma única vez, após o contexto estar disponível.
+    private val hiddenPackages: Set<String> by lazy {
+        setOf(
+            "com.android.vending",
+            "com.google.android.gms",
+            "com.google.android.gsf",
+            "com.smartpack.kernelmanager",
+            "com.topjohnwu.magisk"
+        ) + getVpnPackageNames()
+    }
+
+    // BUG 1 FIX: detecta dinamicamente apps com serviço VPN
+    private fun getVpnPackageNames(): Set<String> {
+        return try {
+            val intent = Intent("android.net.VpnService")
+            packageManager.queryIntentServices(intent, PackageManager.GET_META_DATA)
+                .map { it.serviceInfo.packageName }
+                .toSet()
+        } catch (_: Exception) {
+            emptySet()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -160,6 +177,12 @@ class LauncherActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // BUG 3 FIX: se o launcher aparecer na tela (inclusive via recentes) mas o modo
+        // Ultra não estiver mais ativo, fecha imediatamente para evitar estado inconsistente.
+        if (TaskerLogic.getLastAppliedMode(this) != Mode.ULTRA) {
+            finish()
+            return
+        }
         updateClock()
         handler.post(updateRunnable)
     }

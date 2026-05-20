@@ -65,6 +65,10 @@ class AppChooserActivity : AppCompatActivity() {
             maxSelectable = MAX_SELECTABLE,
             onMaxAttempt = {
                 Toast.makeText(this, R.string.max_apps_toast, Toast.LENGTH_SHORT).show()
+            },
+            // BUG 2 FIX: contagem baseada na lista global, não na lista filtrada do adapter
+            getGlobalSelectedCount = {
+                allAppsList.count { it.isChecked && !it.isHidden }
             }
         )
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -186,7 +190,19 @@ class AppChooserActivity : AppCompatActivity() {
 
     private fun saveCurrentSelection() {
         val selected = allAppsList.filter { it.isChecked }.map { it.packageName }.toSet()
-        UltraBatterySaver.saveAllowedApps(this, selected) // retorno ignorado, mas a função já protege internamente
+        UltraBatterySaver.saveAllowedApps(this, selected)
+    }
+
+    // BUG 1 FIX: detecta dinamicamente apps com serviço VPN instalados no dispositivo
+    private fun getVpnPackageNames(): Set<String> {
+        return try {
+            val intent = Intent("android.net.VpnService")
+            packageManager.queryIntentServices(intent, PackageManager.GET_META_DATA)
+                .map { it.serviceInfo.packageName }
+                .toSet()
+        } catch (_: Exception) {
+            emptySet()
+        }
     }
 
     private fun getObligatoryPackageNames(): Set<String> {
@@ -205,15 +221,20 @@ class AppChooserActivity : AppCompatActivity() {
         set.add("com.google.android.gsf")
         set.add("com.android.settings")
         set.add("com.smartpack.kernelmanager")
+        // BUG 1 FIX: Magisk e VPNs são obrigatórios (seleção imutável)
+        set.add("com.topjohnwu.magisk")
+        set.addAll(getVpnPackageNames())
         return set
     }
 
     private fun getHiddenPackageNames(): Set<String> {
+        // BUG 1 FIX: Magisk e VPNs também são ocultos (não contam nas 12 vagas)
         return setOf(
             "com.android.vending",
             "com.google.android.gms",
             "com.google.android.gsf",
-            "com.smartpack.kernelmanager"
-        )
+            "com.smartpack.kernelmanager",
+            "com.topjohnwu.magisk"
+        ) + getVpnPackageNames()
     }
 }

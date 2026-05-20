@@ -12,7 +12,9 @@ class AppListAdapter(
     private var appList: List<AppInfo>,
     private val onSelectionChanged: () -> Unit,
     private val maxSelectable: Int,
-    private val onMaxAttempt: () -> Unit
+    private val onMaxAttempt: () -> Unit,
+    // BUG 2 FIX: contagem vem da lista global (allAppsList), não da lista filtrada visível
+    private val getGlobalSelectedCount: () -> Int
 ) : RecyclerView.Adapter<AppListAdapter.AppViewHolder>() {
 
     fun updateList(newList: List<AppInfo>) {
@@ -32,8 +34,8 @@ class AppListAdapter(
         holder.itemView.setOnClickListener {
             if (!app.isObrigatorio) {
                 if (!app.isChecked) {
-                    val selectedCount = appList.count { it.isChecked && !it.isHidden }
-                    if (selectedCount >= maxSelectable) {
+                    // Usa contagem global, não da lista filtrada
+                    if (getGlobalSelectedCount() >= maxSelectable) {
                         onMaxAttempt()
                         return@setOnClickListener
                     }
@@ -48,8 +50,8 @@ class AppListAdapter(
         holder.checkBox.setOnClickListener {
             if (!app.isObrigatorio) {
                 if (!app.isChecked) {
-                    val selectedCount = appList.count { it.isChecked && !it.isHidden }
-                    if (selectedCount >= maxSelectable) {
+                    // Usa contagem global, não da lista filtrada
+                    if (getGlobalSelectedCount() >= maxSelectable) {
                         onMaxAttempt()
                         holder.checkBox.isChecked = false
                         return@setOnClickListener
@@ -84,8 +86,8 @@ class AppListAdapter(
             if (!canSelect) {
                 itemView.alpha = 0.6f
             } else {
-                val selectedCount = appList.count { it.isChecked && !it.isHidden }
-                val limitReached = selectedCount >= maxSelectable
+                // Usa contagem global, não da lista filtrada
+                val limitReached = getGlobalSelectedCount() >= maxSelectable
                 val disableForLimit = !appInfo.isChecked && !appInfo.isHidden && limitReached
                 checkBox.isEnabled = !disableForLimit
                 itemView.alpha = if (disableForLimit) 0.4f else 1.0f
