@@ -19,21 +19,34 @@ object UltraAppRepository {
         val currentAllowed = UltraBatterySaver.getAllowedApps(context).toMutableSet()
         val obligatoryPackages = UltraAppPolicy.getObligatoryPackageNames(context)
         val hiddenPackages = UltraAppPolicy.getHiddenPackageNames(context)
+        val defaultPhoneAndSmsPackages = UltraAppPolicy.getDefaultPhoneAndSmsPackages(context)
 
         val loaded = mutableListOf<AppInfo>()
 
         for (app in packages) {
             if (app.packageName == context.packageName) continue
-            if (!app.enabled) continue
-            if ((app.flags and ApplicationInfo.FLAG_SUSPENDED) != 0) continue
 
-            val isSystem = (app.flags and ApplicationInfo.FLAG_SYSTEM) != 0
             val canLaunch = pm.getLaunchIntentForPackage(app.packageName) != null
+            val isDefaultPhoneOrSms = defaultPhoneAndSmsPackages.contains(app.packageName)
+            val isHidden = hiddenPackages.contains(app.packageName)
 
-            if (isSystem && !canLaunch) continue
+            // Se estiver desabilitado, normalmente não entra.
+            // Mas discador/SMS padrão entram mesmo assim, para garantir visibilidade.
+            if (!app.enabled && !isDefaultPhoneOrSms) continue
+
+            // Regras normais para apps que não são discador/SMS padrão.
+            if (!isDefaultPhoneOrSms) {
+                // Ocultos não aparecem na lista.
+                if (isHidden) continue
+
+                // Somente:
+                // - apps de usuário;
+                // - sistema atualizado;
+                // - sistema com launcher.
+                if (!UltraAppPolicy.isUserOrLaunchableSystemApp(app, canLaunch)) continue
+            }
 
             val isObrig = obligatoryPackages.contains(app.packageName)
-            val isHidden = hiddenPackages.contains(app.packageName)
 
             val info = AppInfo(
                 appName = pm.getApplicationLabel(app).toString(),
@@ -77,6 +90,10 @@ object UltraAppRepository {
             .map { it.packageName }
             .toSet()
 
-        UltraBatterySaver.saveAllowedApps(context, selected)
+        // Garante que os obrigatórios sempre permaneçam allowlistados,
+        // mesmo que não estejam visíveis na lista.
+        val obligatory = UltraAppPolicy.getObligatoryPackageNames(context)
+
+        UltraBatterySaver.saveAllowedApps(context, selected + obligatory)
     }
 }
