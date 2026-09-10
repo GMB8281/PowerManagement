@@ -1,20 +1,29 @@
-package com.marinov.powermanagement
+package com.marinov.powermanagement.ui
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.*
+import android.widget.GridLayout
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.MaterialToolbar
-import com.marinov.powermanagement.TaskerLogic.Mode
+import com.marinov.powermanagement.R
+import com.marinov.powermanagement.core.LauncherManager
+import com.marinov.powermanagement.core.ModeLogic
+import com.marinov.powermanagement.core.TaskerLogic
+import com.marinov.powermanagement.core.TaskerLogic.Mode
+import com.marinov.powermanagement.ultra.UltraAppPolicy
+import com.marinov.powermanagement.ultra.UltraBatterySaver
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class LauncherActivity : AppCompatActivity() {
 
@@ -34,25 +43,7 @@ class LauncherActivity : AppCompatActivity() {
     // BUG 1 FIX: hiddenPackages agora inclui Magisk e VPNs detectadas dinamicamente.
     // Lazy garante que é calculado uma única vez, após o contexto estar disponível.
     private val hiddenPackages: Set<String> by lazy {
-        setOf(
-            "com.android.vending",
-            "com.google.android.gms",
-            "com.google.android.gsf",
-            "com.smartpack.kernelmanager",
-            "com.topjohnwu.magisk"
-        ) + getVpnPackageNames()
-    }
-
-    // BUG 1 FIX: detecta dinamicamente apps com serviço VPN
-    private fun getVpnPackageNames(): Set<String> {
-        return try {
-            val intent = Intent("android.net.VpnService")
-            packageManager.queryIntentServices(intent, PackageManager.GET_META_DATA)
-                .map { it.serviceInfo.packageName }
-                .toSet()
-        } catch (_: Exception) {
-            emptySet()
-        }
+        UltraAppPolicy.getHiddenPackageNames(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +55,7 @@ class LauncherActivity : AppCompatActivity() {
             finish()
             return
         }
+
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 // Não faz nada, bloqueia o botão voltar
@@ -128,6 +120,7 @@ class LauncherActivity : AppCompatActivity() {
 
     private fun loadAllowedApps() {
         val pm = packageManager
+
         val allowedPackages = UltraBatterySaver.getAllowedApps(this)
             .filterNot { it in hiddenPackages }
             .take(12)
@@ -138,23 +131,29 @@ class LauncherActivity : AppCompatActivity() {
 
             if (i < allowedPackages.size) {
                 val packageName = allowedPackages[i]
+
                 try {
-                    val appInfo = pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+                    val appInfo = pm.getApplicationInfo(packageName, android.content.pm.PackageManager.GET_META_DATA)
                     val icon = pm.getApplicationIcon(appInfo)
                     val label = pm.getApplicationLabel(appInfo).toString()
+
                     iconView.setImageDrawable(icon)
                     labelView.text = label
                     iconView.contentDescription = label
+
                     iconView.setOnClickListener {
                         try {
                             val intent = pm.getLaunchIntentForPackage(packageName)
-                            if (intent != null) startActivity(intent)
-                            else Toast.makeText(this, R.string.app_launch_error, Toast.LENGTH_SHORT).show()
+                            if (intent != null) {
+                                startActivity(intent)
+                            } else {
+                                Toast.makeText(this, R.string.app_launch_error, Toast.LENGTH_SHORT).show()
+                            }
                         } catch (_: Exception) {
                             Toast.makeText(this, R.string.app_launch_error_generic, Toast.LENGTH_SHORT).show()
                         }
                     }
-                } catch (_: PackageManager.NameNotFoundException) {
+                } catch (_: android.content.pm.PackageManager.NameNotFoundException) {
                     setEmptySlot(iconView, labelView)
                 }
             } else {
@@ -177,12 +176,14 @@ class LauncherActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
         // BUG 3 FIX: se o launcher aparecer na tela (inclusive via recentes) mas o modo
         // Ultra não estiver mais ativo, fecha imediatamente para evitar estado inconsistente.
         if (TaskerLogic.getLastAppliedMode(this) != Mode.ULTRA) {
             finish()
             return
         }
+
         updateClock()
         handler.post(updateRunnable)
     }

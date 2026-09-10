@@ -1,4 +1,4 @@
-package com.marinov.powermanagement
+package com.marinov.powermanagement.model
 
 import android.graphics.drawable.Drawable
 

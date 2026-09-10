@@ -1,5 +1,6 @@
-package com.marinov.powermanagement
+package com.marinov.powermanagement.core
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -7,7 +8,9 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.core.content.edit
-import com.marinov.powermanagement.TaskerLogic.Mode
+import com.marinov.powermanagement.R
+import com.marinov.powermanagement.core.TaskerLogic.Mode
+import com.marinov.powermanagement.ultra.UltraBatterySaver
 
 object ModeLogic {
 
@@ -42,6 +45,7 @@ object ModeLogic {
 
     fun applyModeWithLauncher(context: Context, mode: Mode): Boolean {
         val currentMode = TaskerLogic.getLastAppliedMode(context)
+
         if (currentMode == Mode.ULTRA && mode == Mode.ULTRA) {
             Handler(Looper.getMainLooper()).post {
                 // Nenhuma ação necessária
@@ -50,8 +54,8 @@ object ModeLogic {
         }
 
         val data = TaskerLogic.getProfileData(context, mode) ?: return false
-
         val version = TaskerLogic.getVersionCode(context, mode)
+
         TaskerLogic.applyProfile(context, data, version)
 
         val previousMode = TaskerLogic.getLastAppliedMode(context)
@@ -68,24 +72,37 @@ object ModeLogic {
         }
 
         when (mode) {
-            Mode.PERFORMANCE, Mode.STANDARD -> {
-                try { LauncherManager.finishIfActive() } catch (_: Exception) {}
+            Mode.PERFORMANCE,
+            Mode.STANDARD -> {
+                try {
+                    LauncherManager.finishIfActive()
+                } catch (_: Exception) {
+                }
+
                 val launcherComponent = getDefaultLauncherComponent(context)
+
                 if (launcherComponent != null) {
                     if (!setHomeActivityRoot(context, launcherComponent)) {
-                        Toast.makeText(context, R.string.launcher_switch_fail, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            R.string.launcher_switch_fail,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 } else {
                     Toast.makeText(context, R.string.no_default_launcher, Toast.LENGTH_SHORT).show()
                 }
+
                 Toast.makeText(
                     context,
                     context.getString(R.string.mode_applied_toast, mode.displayName),
                     Toast.LENGTH_SHORT
                 ).show()
             }
+
             Mode.ULTRA -> {
                 activateUltraMode(context)
+
                 if (RootCommands.isRootAvailable()) {
                     UltraBatterySaver.suspendNonAllowedApps(context) {
                         Toast.makeText(context, R.string.apps_suspended_toast, Toast.LENGTH_SHORT).show()
@@ -95,18 +112,25 @@ object ModeLogic {
                 }
             }
         }
+
         return true
     }
 
     private fun activateUltraMode(context: Context) {
-        val ourLauncher = "${context.packageName}/.LauncherActivity"
+        val ourLauncher = "${context.packageName}/.ui.LauncherActivity"
         val success = setHomeActivityRoot(context, ourLauncher)
 
         Handler(Looper.getMainLooper()).postDelayed({
             try {
-                val launchIntent = Intent(context, LauncherActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                }
+                val launchIntent = Intent(Intent.ACTION_MAIN)
+                    .setComponent(
+                        ComponentName(
+                            context.packageName,
+                            "${context.packageName}.ui.LauncherActivity"
+                        )
+                    )
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+
                 context.applicationContext.startActivity(launchIntent)
             } catch (e: Exception) {
                 Toast.makeText(
@@ -120,6 +144,7 @@ object ModeLogic {
         if (!success) {
             Toast.makeText(context, R.string.ultra_launcher_set_fail, Toast.LENGTH_SHORT).show()
         }
+
         Toast.makeText(
             context,
             context.getString(R.string.mode_applied_toast, Mode.ULTRA.displayName),
@@ -132,10 +157,13 @@ object ModeLogic {
             Toast.makeText(context, R.string.root_not_available, Toast.LENGTH_SHORT).show()
             return false
         }
+
         val success = RootCommands.run("cmd package set-home-activity $component")
+
         if (!success) {
             Toast.makeText(context, R.string.root_command_fail, Toast.LENGTH_SHORT).show()
         }
+
         return success
     }
 }

@@ -1,14 +1,15 @@
-package com.marinov.powermanagement
+package com.marinov.powermanagement.ui
 
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
-
+import com.marinov.powermanagement.R
+import com.marinov.powermanagement.core.LauncherRepository
+import com.marinov.powermanagement.core.ModeLogic
+import com.marinov.powermanagement.model.LauncherInfo
 class LauncherSelectionActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -21,44 +22,37 @@ class LauncherSelectionActivity : AppCompatActivity() {
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         recyclerView = findViewById(R.id.rv_launchers)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Carrega o launcher padrão atual
-        val currentPkg = ModeLogic.getDefaultLauncherComponent(this)?.substringBefore("/")
+        val currentPkg = LauncherRepository.getCurrentDefaultPackage(this)
 
         adapter = LauncherAdapter(emptyList()) { launcher ->
             ModeLogic.setDefaultLauncher(this, launcher.packageName, launcher.activityName)
-            Toast.makeText(this, getString(R.string.launcher_set_toast, launcher.label), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                getString(R.string.launcher_set_toast, launcher.label),
+                Toast.LENGTH_SHORT
+            ).show()
             finish()
         }
-        recyclerView.adapter = adapter
 
+        recyclerView.adapter = adapter
         loadLaunchers(currentPkg)
     }
 
     private fun loadLaunchers(currentPkg: String?) {
-        val pm = packageManager
-        val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
-        val resolveInfos = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-
-        val ourPackage = packageName
-        val launchers = resolveInfos.mapNotNull { info ->
-            val packageName = info.activityInfo.packageName
-            val activityName = info.activityInfo.name
-            val label = info.loadLabel(pm).toString()
-            if (packageName == ourPackage || label.isBlank()) return@mapNotNull null
-            val icon = info.loadIcon(pm)
-            LauncherInfo(packageName, activityName, label, icon)
-        }.sortedBy { it.label.lowercase() }
+        val launchers = LauncherRepository.getHomeLaunchers(this)
 
         launchersList.clear()
         launchersList.addAll(launchers)
+
         adapter.updateList(launchersList)
-        adapter.selectedPackage = currentPkg   // destaca o atual
+        adapter.selectedPackage = currentPkg
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -1,4 +1,4 @@
-package com.marinov.powermanagement
+package com.marinov.powermanagement.ui
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +7,8 @@ import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.marinov.powermanagement.R
+import com.marinov.powermanagement.model.AppInfo
 
 class AppListAdapter(
     private var appList: List<AppInfo>,
@@ -23,7 +25,8 @@ class AppListAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_app, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.list_item_app, parent, false)
         return AppViewHolder(view)
     }
 
@@ -40,6 +43,7 @@ class AppListAdapter(
                         return@setOnClickListener
                     }
                 }
+
                 app.isChecked = !app.isChecked
                 holder.checkBox.isChecked = app.isChecked
                 notifyDataSetChanged()
@@ -57,6 +61,7 @@ class AppListAdapter(
                         return@setOnClickListener
                     }
                 }
+
                 app.isChecked = holder.checkBox.isChecked
                 notifyDataSetChanged()
                 onSelectionChanged()
@@ -89,6 +94,7 @@ class AppListAdapter(
                 // Usa contagem global, não da lista filtrada
                 val limitReached = getGlobalSelectedCount() >= maxSelectable
                 val disableForLimit = !appInfo.isChecked && !appInfo.isHidden && limitReached
+
                 checkBox.isEnabled = !disableForLimit
                 itemView.alpha = if (disableForLimit) 0.4f else 1.0f
             }

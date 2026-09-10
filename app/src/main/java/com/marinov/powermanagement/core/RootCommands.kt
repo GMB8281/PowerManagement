@@ -1,6 +1,7 @@
-package com.marinov.powermanagement
+package com.marinov.powermanagement.core
 
 object RootCommands {
+
     fun run(command: String): Boolean {
         return try {
             val process = Runtime.getRuntime().exec(arrayOf("su", "-c", command))
@@ -15,6 +16,7 @@ object RootCommands {
 
     fun runBatch(commands: List<String>): Boolean {
         if (commands.isEmpty()) return true
+
         val script = commands.joinToString(" && ")
         return try {
             val process = Runtime.getRuntime().exec(arrayOf("su", "-c", script))

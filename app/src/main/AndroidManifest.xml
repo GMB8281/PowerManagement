@@ -17,7 +17,7 @@
         android:theme="@style/Theme.GerenciamentoDeEnergia">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,7 +26,7 @@
         </activity>
 
         <activity
-            android:name=".LauncherActivity"
+            android:name=".ui.LauncherActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:stateNotNeeded="true"
@@ -39,30 +39,30 @@
         </activity>
 
         <activity
-            android:name=".AppChooserActivity"
+            android:name=".ui.AppChooserActivity"
             android:exported="false" />
 
         <activity
-            android:name=".tiles.CollapseActivity"
+            android:name=".ui.quick_tiles.CollapseActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:excludeFromRecents="true"
             android:exported="false" />
 
         <activity
-            android:name=".LauncherSelectionActivity"
+            android:name=".ui.LauncherSelectionActivity"
             android:exported="false" />
 
-        <activity android:name=".ModeSettingsActivity" />
-        <activity android:name=".WelcomeActivity" />
+        <activity android:name=".ui.ModeSettingsActivity" />
+        <activity android:name=".ui.WelcomeActivity" />
 
         <!-- Quick Settings Tiles -->
         <service
-            android:name=".tiles.PerformanceTileService"
+            android:name=".ui.quick_tiles.PerformanceTileService"
             android:icon="@drawable/ic_performance"
             android:label="Desempenho"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:exported="true"
-            tools:targetApi="24">
+            >
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
@@ -72,12 +72,12 @@
         </service>
 
         <service
-            android:name=".tiles.StandardTileService"
+            android:name=".ui.quick_tiles.StandardTileService"
             android:icon="@drawable/ic_standard"
             android:label="Padrão"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:exported="true"
-            tools:targetApi="24">
+            >
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
@@ -87,12 +87,11 @@
         </service>
 
         <service
-            android:name=".tiles.UltraTileService"
+            android:name=".ui.quick_tiles.UltraTileService"
             android:icon="@drawable/ic_ultra"
             android:label="Ultra‑Econômico"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
-            android:exported="true"
-            tools:targetApi="24">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
@@ -103,7 +102,7 @@
 
         <!-- Boot receiver para manter tiles ativos -->
         <receiver
-            android:name=".BootReceiver"
+            android:name=".core.BootReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

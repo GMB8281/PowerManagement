@@ -1,4 +1,4 @@
-package com.marinov.powermanagement
+package com.marinov.powermanagement.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,7 +8,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.card.MaterialCardView
-import com.marinov.powermanagement.TaskerLogic.Mode
+import com.marinov.powermanagement.R
+import com.marinov.powermanagement.core.TaskerLogic
+import com.marinov.powermanagement.core.TaskerLogic.Mode
 
 class ModeSettingsActivity : AppCompatActivity() {
 
@@ -27,12 +29,13 @@ class ModeSettingsActivity : AppCompatActivity() {
 
         val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        // Configura o título grande e subtítulo
         val tvModeTitle = findViewById<TextView>(R.id.tv_mode_title)
         val tvModeSubtitle = findViewById<TextView>(R.id.tv_mode_subtitle)
+
         tvModeTitle.text = getString(R.string.mode_settings_title, mode.displayName)
         tvModeSubtitle.text = when (mode) {
             Mode.PERFORMANCE -> getString(R.string.mode_settings_subtitle_performance)
@@ -40,7 +43,6 @@ class ModeSettingsActivity : AppCompatActivity() {
             Mode.ULTRA -> getString(R.string.mode_settings_subtitle_ultra)
         }
 
-        // Altera perfil de kernel
         findViewById<MaterialCardView>(R.id.btn_change_kernel).setOnClickListener {
             if (TaskerLogic.isPluginAvailable(this)) {
                 TaskerLogic.requestProfilePicker(this, REQ_KERNEL_PROFILE)
@@ -49,7 +51,6 @@ class ModeSettingsActivity : AppCompatActivity() {
             }
         }
 
-        // Configurações específicas do Ultra
         if (mode == Mode.ULTRA) {
             val layoutUltra = findViewById<LinearLayout>(R.id.layout_ultra_settings)
             layoutUltra.visibility = View.VISIBLE
@@ -75,12 +76,14 @@ class ModeSettingsActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         if (requestCode == REQ_KERNEL_PROFILE && resultCode == RESULT_OK && data != null) {
             val name = TaskerLogic.extractProfileName(data) ?: getString(R.string.unknown_profile)
             val profileData = TaskerLogic.extractProfileData(data) ?: return
             val versionCode = TaskerLogic.extractVersionCode(data)
 
             TaskerLogic.saveProfile(this, mode, name, profileData, versionCode)
+
             Toast.makeText(
                 this,
                 getString(R.string.profile_saved_toast, name),

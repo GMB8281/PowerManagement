@@ -1,4 +1,4 @@
-package com.marinov.powermanagement
+package com.marinov.powermanagement.ultra
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -8,6 +8,9 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.core.content.edit
+import com.marinov.powermanagement.R
+import com.marinov.powermanagement.core.RootCommands
+import com.marinov.powermanagement.core.TaskerLogic
 
 object UltraBatterySaver {
 
@@ -35,6 +38,7 @@ object UltraBatterySaver {
      */
     fun saveAllowedApps(context: Context, apps: Set<String>): Boolean {
         val currentMode = TaskerLogic.getLastAppliedMode(context)
+
         if (currentMode == TaskerLogic.Mode.ULTRA) {
             mainHandler.post {
                 Toast.makeText(
@@ -45,6 +49,7 @@ object UltraBatterySaver {
             }
             return false
         }
+
         getPrefs(context).edit { putStringSet(KEY_ALLOWED_APPS, apps) }
         return true
     }
@@ -61,6 +66,7 @@ object UltraBatterySaver {
 
     private fun getVisiblePackages(context: Context): Set<String> {
         val pm = context.packageManager
+
         val packages = try {
             pm.getInstalledApplications(PackageManager.GET_META_DATA)
         } catch (_: Exception) {
@@ -68,6 +74,7 @@ object UltraBatterySaver {
         }
 
         val visible = mutableSetOf<String>()
+
         for (app in packages) {
             if (app.packageName == context.packageName) continue
             if (!app.enabled) continue
@@ -75,10 +82,12 @@ object UltraBatterySaver {
 
             val isSystem = (app.flags and ApplicationInfo.FLAG_SYSTEM) != 0
             val canLaunch = pm.getLaunchIntentForPackage(app.packageName) != null
+
             if (isSystem && !canLaunch) continue
 
             visible.add(app.packageName)
         }
+
         return visible
     }
 
@@ -87,8 +96,8 @@ object UltraBatterySaver {
             try {
                 val allowed = getAllowedApps(context)
                 val visible = getVisiblePackages(context)
-
                 val toSuspend = visible.filter { it !in allowed }
+
                 if (toSuspend.isEmpty()) {
                     saveSuspendedPackages(context, emptySet())
                     onComplete?.let { mainHandler.post(it) }
@@ -114,6 +123,7 @@ object UltraBatterySaver {
         Thread {
             try {
                 val suspended = getSuspendedPackages(context)
+
                 if (suspended.isEmpty()) {
                     onComplete?.let { mainHandler.post(it) }
                     return@Thread

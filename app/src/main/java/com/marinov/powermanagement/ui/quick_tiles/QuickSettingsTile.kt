@@ -1,4 +1,4 @@
-package com.marinov.powermanagement.tiles
+package com.marinov.powermanagement.ui.quick_tiles
 
 import android.app.PendingIntent
 import android.content.Intent
@@ -6,12 +6,12 @@ import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.Toast
-import com.marinov.powermanagement.AppChooserActivity
-import com.marinov.powermanagement.ModeLogic
-import com.marinov.powermanagement.TaskerLogic
-import com.marinov.powermanagement.TaskerLogic.Mode
-import com.marinov.powermanagement.UltraBatterySaver
 import com.marinov.powermanagement.R
+import com.marinov.powermanagement.core.ModeLogic
+import com.marinov.powermanagement.core.TaskerLogic
+import com.marinov.powermanagement.core.TaskerLogic.Mode
+import com.marinov.powermanagement.ui.AppChooserActivity
+import com.marinov.powermanagement.ultra.UltraBatterySaver
 
 abstract class BaseTileService : TileService() {
 
@@ -35,13 +35,16 @@ abstract class BaseTileService : TileService() {
 
         // Guarda 1: perfil de kernel configurado?
         val data = TaskerLogic.getProfileData(this, mode)
+
         if (data == null) {
             val modeName = getString(modeNameResId)
+
             Toast.makeText(
                 this,
                 getString(R.string.configure_mode_first, modeName),
                 Toast.LENGTH_SHORT
             ).show()
+
             qsTile?.state = Tile.STATE_INACTIVE
             qsTile?.updateTile()
             return
@@ -71,7 +74,9 @@ abstract class BaseTileService : TileService() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             val pending = PendingIntent.getActivity(
-                this, 1, intent,
+                this,
+                1,
+                intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
             startActivityAndCollapse(pending)
@@ -88,7 +93,10 @@ abstract class BaseTileService : TileService() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             val pending = PendingIntent.getActivity(
-                this, 0, intent, PendingIntent.FLAG_IMMUTABLE
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE
             )
             startActivityAndCollapse(pending)
         } else {

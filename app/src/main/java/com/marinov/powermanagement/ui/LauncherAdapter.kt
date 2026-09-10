@@ -1,4 +1,4 @@
-package com.marinov.powermanagement
+package com.marinov.powermanagement.ui
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.marinov.powermanagement.R
+import com.marinov.powermanagement.model.LauncherInfo
 
 class LauncherAdapter(
     private var launchers: List<LauncherInfo>,
@@ -46,7 +48,6 @@ class LauncherAdapter(
             name.text = launcher.label
             packageNameText.text = launcher.packageName
 
-            // Destaque do item selecionado
             val isSelected = launcher.packageName == selectedPackage
             checkIcon.visibility = if (isSelected) View.VISIBLE else View.GONE
             itemView.isSelected = isSelected

@@ -1,4 +1,4 @@
-package com.marinov.powermanagement
+package com.marinov.powermanagement.ui
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
@@ -16,13 +16,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.toColorInt
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.progressindicator.CircularProgressIndicator
-import com.marinov.powermanagement.TaskerLogic.Mode
+import com.marinov.powermanagement.R
+import com.marinov.powermanagement.core.ModeLogic
+import com.marinov.powermanagement.core.TaskerLogic
+import com.marinov.powermanagement.core.TaskerLogic.Mode
+import com.marinov.powermanagement.ultra.UltraBatterySaver
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var rbPerformance: RadioButton
     private lateinit var rbStandard: RadioButton
     private lateinit var rbUltra: RadioButton
+
     private lateinit var cardPerformance: MaterialCardView
     private lateinit var cardStandard: MaterialCardView
     private lateinit var cardUltra: MaterialCardView
@@ -33,7 +38,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvBatteryTime: TextView
 
     private var lastAppliedMode: Mode? = null
-
     private var isBatteryReceiverRegistered = false
     private var isModeReceiverRegistered = false
 
@@ -42,8 +46,10 @@ class MainActivity : AppCompatActivity() {
             val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
             val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
             val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+
             val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                     status == BatteryManager.BATTERY_STATUS_FULL
+
             if (level != -1 && scale != -1) {
                 val batteryPct = (level * 100) / scale.toFloat()
                 updateBatteryUI(batteryPct.toInt(), isCharging)
@@ -94,11 +100,13 @@ class MainActivity : AppCompatActivity() {
         isBatteryReceiverRegistered = true
 
         val filter = IntentFilter(TaskerLogic.ACTION_MODE_APPLIED)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(modeChangedReceiver, filter, RECEIVER_NOT_EXPORTED)
         } else {
             registerReceiver(modeChangedReceiver, filter)
         }
+
         isModeReceiverRegistered = true
 
         cardPerformance.setOnClickListener { handleModeSelection(Mode.PERFORMANCE) }
@@ -109,9 +117,11 @@ class MainActivity : AppCompatActivity() {
         findViewById<ImageButton>(R.id.btn_config_performance).setOnClickListener {
             openSettingsScreen(Mode.PERFORMANCE)
         }
+
         findViewById<ImageButton>(R.id.btn_config_standard).setOnClickListener {
             openSettingsScreen(Mode.STANDARD)
         }
+
         findViewById<ImageButton>(R.id.btn_config_ultra).setOnClickListener {
             openSettingsScreen(Mode.ULTRA)
         }
@@ -125,16 +135,24 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+
         if (isBatteryReceiverRegistered) {
-            try { unregisterReceiver(batteryReceiver) } catch (_: Exception) {}
+            try {
+                unregisterReceiver(batteryReceiver)
+            } catch (_: Exception) {
+            }
         }
+
         if (isModeReceiverRegistered) {
-            try { unregisterReceiver(modeChangedReceiver) } catch (_: Exception) {}
+            try {
+                unregisterReceiver(modeChangedReceiver)
+            } catch (_: Exception) {
+            }
         }
     }
 
     private fun requestPermissionsAndRoot() {
-        Thread { RootCommands.isRootAvailable() }.start()
+        Thread { com.marinov.powermanagement.core.RootCommands.isRootAvailable() }.start()
     }
 
     private fun updateBatteryUI(percent: Int, isCharging: Boolean) {
@@ -146,9 +164,14 @@ class MainActivity : AppCompatActivity() {
             percent <= 40 -> "#FBC02D".toColorInt()
             else -> "#388E3C".toColorInt()
         }
+
         batteryProgress.setIndicatorColor(color)
 
-        tvBatteryTime.text = if (isCharging) getString(R.string.charging) else estimateRemainingTime(percent)
+        tvBatteryTime.text = if (isCharging) {
+            getString(R.string.charging)
+        } else {
+            estimateRemainingTime(percent)
+        }
     }
 
     private fun estimateRemainingTime(percent: Int): String {
@@ -158,11 +181,16 @@ class MainActivity : AppCompatActivity() {
 
         if (chargeCounter != Long.MIN_VALUE && currentAvg != Long.MIN_VALUE && currentAvg > 0) {
             val hours = chargeCounter.toFloat() / currentAvg
+
             if (hours > 0 && hours < 100) {
                 val h = hours.toInt()
                 val m = ((hours - h) * 60).toInt()
-                return if (h > 0) getString(R.string.approx_time_format, h, m)
-                else getString(R.string.approx_min_format, m)
+
+                return if (h > 0) {
+                    getString(R.string.approx_time_format, h, m)
+                } else {
+                    getString(R.string.approx_min_format, m)
+                }
             }
         }
 
@@ -170,27 +198,39 @@ class MainActivity : AppCompatActivity() {
         val estimatedMinutesTotal = percent * minutesPerPercent
         val hours = estimatedMinutesTotal / 60
         val mins = estimatedMinutesTotal % 60
-        return if (hours > 0) getString(R.string.estimate_format, hours, mins)
-        else getString(R.string.estimate_min_format, mins)
+
+        return if (hours > 0) {
+            getString(R.string.estimate_format, hours, mins)
+        } else {
+            getString(R.string.estimate_min_format, mins)
+        }
     }
 
     private fun handleModeSelection(mode: Mode) {
         if (mode == Mode.ULTRA && !UltraBatterySaver.isUltraSetupComplete(this)) {
             // Em vez de UltraSetupActivity, abre diretamente o seletor de apps
-            startActivity(Intent(this, AppChooserActivity::class.java).apply {
-                putExtra("ultra_setup", true)
-            })
-            return   // NÃO fecha a MainActivity
+            startActivity(
+                Intent(this, AppChooserActivity::class.java).apply {
+                    putExtra("ultra_setup", true)
+                }
+            )
+            return // NÃO fecha a MainActivity
         }
+
         val success = ModeLogic.applyModeWithLauncher(this, mode)
+
         if (success) {
             markCurrentMode()
+
             if (mode == Mode.ULTRA) {
-                startActivity(Intent(Intent.ACTION_MAIN).apply {
-                    addCategory(Intent.CATEGORY_HOME)
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                })
+                startActivity(
+                    Intent(Intent.ACTION_MAIN).apply {
+                        addCategory(Intent.CATEGORY_HOME)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                )
             }
+
             finish()
         } else {
             markCurrentMode()
