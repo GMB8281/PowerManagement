@@ -6,7 +6,6 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.provider.Telephony
 import android.telecom.TelecomManager
-import androidx.core.net.toUri
 import com.marinov.powermanagement.model.AppInfo
 
 object UltraAppPolicy {
@@ -51,10 +50,6 @@ object UltraAppPolicy {
             ?.let { set.add(it) }
 
         return set
-    }
-
-    fun isDefaultPhoneOrSms(context: Context, packageName: String): Boolean {
-        return packageName in getDefaultPhoneAndSmsPackages(context)
     }
 
     /**
@@ -130,6 +125,8 @@ object UltraAppPolicy {
             "com.google.android.gms",
             "com.google.android.gsf",
             "com.smartpack.kernelmanager",
+            "com.google.android.apps.wellbeing",
+            "com.google.android.apps.kids.familylink",
             "com.topjohnwu.magisk"
         )
 
