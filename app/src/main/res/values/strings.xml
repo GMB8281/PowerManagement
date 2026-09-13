@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Power Management</string>
     <string name="main_title">Power Manager</string>
+
     <string name="continue_button">Continue</string>
     <string name="search_hint">Search apps…</string>
     <string name="app_icon">App icon</string>
@@ -9,7 +10,7 @@
     <string name="choose_apps_title">Choose allowed apps</string>
     <string name="choose_apps_subtitle">Choose the apps you want to keep enabled in Ultra-Saving mode</string>
     <string name="ultra_active_block">Allowed apps cannot be changed while Ultra mode is active. Disable Ultra mode first.</string>
-    <string name="max_apps_toast">A maximum of 12 apps can be selected</string>
+    <string name="max_apps_toast">A maximum of 24 apps can be selected</string>
 
     <string name="launcher_title">Ultra Saving</string>
     <string name="menu_exit">Exit</string>
@@ -28,6 +29,7 @@
     <string name="approx_min_format">Approx. %1$dmin remaining</string>
     <string name="estimate_format">Approx. %1$dh %2$dmin (estimate)</string>
     <string name="estimate_min_format">Approx. %1$dmin (estimate)</string>
+
     <string name="energy_modes_title">Power Modes</string>
     <string name="other_settings_title">Other Settings</string>
     <string name="change_launcher_title">Change default launcher</string>
@@ -46,6 +48,7 @@
     <string name="mode_settings_subtitle_performance">Maximum performance for gaming and heavy tasks</string>
     <string name="mode_settings_subtitle_standard">Ideal balance between performance and savings</string>
     <string name="mode_settings_subtitle_ultra">Extreme battery saving</string>
+
     <string name="change_kernel_profile">Change kernel profile</string>
     <string name="choose_allowed_apps">Choose allowed apps</string>
     <string name="smartpack_not_installed">Smartpack Kernel Manager not installed!</string>

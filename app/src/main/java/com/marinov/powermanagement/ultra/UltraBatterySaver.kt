@@ -32,8 +32,9 @@ object UltraBatterySaver {
     }
 
     /**
-     * Salva a lista de apps permitidos, **apenas se o modo Ultra NÃO estiver ativo**.
+     * Salva a lista de apps permitidos, apenas se o modo Ultra NÃO estiver ativo.
      * Se o modo Ultra estiver ativo, a operação é ignorada e um Toast é mostrado.
+     *
      * @return true se salvou, false se foi bloqueado.
      */
     fun saveAllowedApps(context: Context, apps: Set<String>): Boolean {
@@ -91,6 +92,14 @@ object UltraBatterySaver {
         return visible
     }
 
+    /**
+     * Suspende apps não permitidos e também força a parada deles.
+     *
+     * Importante:
+     * - pm suspend garante estado suspenso.
+     * - am force-stop garante que processos desses apps não permaneçam em execução.
+     * - Apenas apps suspensos são mortos. Apps permitidos não são afetados.
+     */
     fun suspendNonAllowedApps(context: Context, onComplete: (() -> Unit)? = null) {
         Thread {
             try {
@@ -100,42 +109,59 @@ object UltraBatterySaver {
 
                 if (toSuspend.isEmpty()) {
                     saveSuspendedPackages(context, emptySet())
-                    onComplete?.let { mainHandler.post(it) }
                     return@Thread
                 }
 
-                val commands = toSuspend.map { "pm suspend $it" }
-                val success = RootCommands.runBatch(commands)
-
-                if (success) {
-                    saveSuspendedPackages(context, toSuspend.toSet())
-                } else {
+                if (!RootCommands.isRootAvailable()) {
                     saveSuspendedPackages(context, emptySet())
+                    return@Thread
                 }
+
+                val suspendCommands = toSuspend.map { "pm suspend $it" }
+                val suspendStarted = RootCommands.runBatchBestEffort(suspendCommands)
+
+                if (!suspendStarted) {
+                    saveSuspendedPackages(context, emptySet())
+                    return@Thread
+                }
+
+                // Salva a lista antes de matar processos para garantir rollback posterior.
+                saveSuspendedPackages(context, toSuspend.toSet())
+
+                val killCommands = toSuspend.map { "am force-stop $it" }
+                RootCommands.runBatchBestEffort(killCommands)
+
             } catch (_: Exception) {
+                // Ignora falhas inesperadas para não quebrar o fluxo principal.
             } finally {
                 onComplete?.let { mainHandler.post(it) }
             }
         }.start()
     }
 
+    /**
+     * Versão síncrona para uso em background, principalmente no BootReceiver.
+     */
+    fun unsuspendAllSuspendedAppsSync(context: Context) {
+        try {
+            val suspended = getSuspendedPackages(context)
+            if (suspended.isEmpty()) return
+
+            if (!RootCommands.isRootAvailable()) return
+
+            val commands = suspended.map { "pm unsuspend $it" }
+            RootCommands.runBatchBestEffort(commands)
+
+            saveSuspendedPackages(context, emptySet())
+        } catch (_: Exception) {
+            // Silencioso de propósito.
+        }
+    }
+
     fun unsuspendAllSuspendedApps(context: Context, onComplete: (() -> Unit)? = null) {
         Thread {
-            try {
-                val suspended = getSuspendedPackages(context)
-
-                if (suspended.isEmpty()) {
-                    onComplete?.let { mainHandler.post(it) }
-                    return@Thread
-                }
-
-                val commands = suspended.map { "pm unsuspend $it" }
-                RootCommands.runBatch(commands)
-                saveSuspendedPackages(context, emptySet())
-            } catch (_: Exception) {
-            } finally {
-                onComplete?.let { mainHandler.post(it) }
-            }
+            unsuspendAllSuspendedAppsSync(context)
+            onComplete?.let { mainHandler.post(it) }
         }.start()
     }
 }

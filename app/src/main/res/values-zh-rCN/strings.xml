@@ -1,5 +1,5 @@
 <resources>
-    <!-- General / 常规 -->
+    <!-- General -->
     <string name="app_name">电源管理</string>
     <string name="main_title">电源管理器</string>
     <string name="continue_button">继续</string>
@@ -7,25 +7,25 @@
     <string name="app_icon">应用图标</string>
     <string name="app_icon_desc">应用图标</string>
 
-    <!-- AppChooserActivity / 应用选择 -->
+    <!-- AppChooserActivity -->
     <string name="choose_apps_title">选择允许的应用</string>
-    <string name="choose_apps_subtitle">点击您希望在超级省电模式下保持可见的应用</string>
+    <string name="choose_apps_subtitle">点击您希望在超级省电模式下保持可用的应用</string>
     <string name="ultra_active_block">超级模式激活时无法更改允许的应用。请先关闭超级模式。</string>
-    <string name="max_apps_toast">最多只能选择 12 个应用</string>
+    <string name="max_apps_toast">最多只能选择 24 个应用</string>
 
-    <!-- LauncherActivity / 启动器 -->
+    <!-- LauncherActivity -->
     <string name="launcher_title">超级省电</string>
     <string name="menu_exit">退出</string>
     <string name="app_launch_error">无法打开。</string>
     <string name="app_launch_error_generic">错误。</string>
     <string name="ultra_disabled_toast">超级省电模式已禁用</string>
 
-    <!-- LauncherSelectionActivity / 启动器选择 -->
+    <!-- LauncherSelectionActivity -->
     <string name="launcher_selection_activity_title">选择默认启动器</string>
     <string name="launcher_selection_activity_subtitle">选择退出超级模式后用作主启动器的应用</string>
     <string name="launcher_set_toast">默认启动器已设置为：%s</string>
 
-    <!-- MainActivity / 主界面 -->
+    <!-- MainActivity -->
     <string name="battery_status_title">电池状态</string>
     <string name="calculating_time">正在计算时间…</string>
     <string name="charging">正在充电…</string>
@@ -33,6 +33,7 @@
     <string name="approx_min_format">剩余约 %1$d 分钟</string>
     <string name="estimate_format">约 %1$d 小时 %2$d 分钟（预估）</string>
     <string name="estimate_min_format">约 %1$d 分钟（预估）</string>
+
     <string name="energy_modes_title">电源模式</string>
     <string name="other_settings_title">其他设置</string>
     <string name="change_launcher_title">更改默认启动器</string>
@@ -40,19 +41,20 @@
     <string name="mode_apply_fail">无法应用模式。请检查设置。</string>
     <string name="select_launcher_first">请在继续之前选择一个启动器。</string>
 
-    <!-- Modes / 模式 -->
+    <!-- Modes -->
     <string name="mode_performance">高性能</string>
     <string name="mode_standard">标准</string>
     <string name="mode_ultra">超级省电</string>
     <string name="mode_performance_desc">极致性能</string>
     <string name="mode_standard_desc">理想平衡</string>
-    <string name="mode_ultra_desc">极限续航</string>
+    <string name="mode_ultra_desc">极致续航</string>
 
-    <!-- ModeSettingsActivity / 模式设置 -->
+    <!-- ModeSettingsActivity -->
     <string name="mode_settings_title">%s 模式设置</string>
-    <string name="mode_settings_subtitle_performance">为游戏和重度任务提供最强性能</string>
+    <string name="mode_settings_subtitle_performance">为游戏和高负载任务提供最强性能</string>
     <string name="mode_settings_subtitle_standard">性能与省电之间的理想平衡</string>
-    <string name="mode_settings_subtitle_ultra">极限省电</string>
+    <string name="mode_settings_subtitle_ultra">极致省电</string>
+
     <string name="change_kernel_profile">更改内核配置</string>
     <string name="choose_allowed_apps">选择允许的应用</string>
     <string name="smartpack_not_installed">未安装 Smartpack Kernel Manager！</string>
@@ -60,7 +62,7 @@
     <string name="cant_change_ultra_active">超级模式激活时无法更改允许的应用。请先退出超级模式。</string>
     <string name="unknown_profile">未知</string>
 
-    <!-- WelcomeActivity / 欢迎界面 -->
+    <!-- WelcomeActivity -->
     <string name="welcome_title">欢迎使用电源管理器！</string>
     <string name="select_profiles_prompt">请选择合适的电源配置：</string>
     <string name="launcher_selection_step_subtitle">选择退出超级模式后用作主启动器的应用</string>
@@ -69,7 +71,7 @@
     <string name="tap_to_select">点击选择</string>
     <string name="profile_selected">✓ 已选择配置</string>
 
-    <!-- QuickSettingsTile / 快捷设置 -->
+    <!-- QuickSettingsTile -->
     <string name="configure_mode_first">请先为 %s 模式配置配置文件</string>
     <string name="mode_tile_performance">高性能</string>
     <string name="mode_tile_standard">标准</string>
@@ -80,8 +82,8 @@
     <string name="launcher_switch_fail">切换启动器失败。请检查 Root 权限。</string>
     <string name="no_default_launcher">未定义默认启动器。</string>
     <string name="mode_applied_toast">已应用 %s 模式</string>
-    <string name="root_required_suspend">冻结应用需要 Root 权限。</string>
-    <string name="apps_suspended_toast">应用已冻结。</string>
+    <string name="root_required_suspend">暂停应用需要 Root 权限。</string>
+    <string name="apps_suspended_toast">应用已暂停。</string>
     <string name="ultra_launcher_open_fail">无法打开超级启动器。</string>
     <string name="ultra_launcher_set_fail">设置超级启动器失败。请检查 Root 权限。</string>
     <string name="root_not_available">Root 权限不可用。</string>

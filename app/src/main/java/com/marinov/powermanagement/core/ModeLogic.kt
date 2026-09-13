@@ -1,5 +1,6 @@
 package com.marinov.powermanagement.core
 
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -41,6 +42,20 @@ object ModeLogic {
         val pkg = getPrefs(context).getString(KEY_DEFAULT_LAUNCHER_PKG, null) ?: return null
         val cls = getPrefs(context).getString(KEY_DEFAULT_LAUNCHER_CLS, null) ?: return null
         return "$pkg/$cls"
+    }
+
+    /**
+     * Usado no boot para restaurar o launcher escolhido pelo usuário sem exibir Toasts
+     * e sem aplicar perfil de kernel.
+     */
+    fun restoreUserLauncherSilent(context: Context): Boolean {
+        val component = getDefaultLauncherComponent(context)
+            ?: LauncherRepository.getHomeLaunchers(context)
+                .firstOrNull()
+                ?.let { "${it.packageName}/${it.activityName}" }
+            ?: return false
+
+        return RootCommands.run("cmd package set-home-activity $component")
     }
 
     fun applyModeWithLauncher(context: Context, mode: Mode): Boolean {

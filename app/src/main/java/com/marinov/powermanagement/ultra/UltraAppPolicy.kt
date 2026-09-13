@@ -10,9 +10,8 @@ import com.marinov.powermanagement.model.AppInfo
 
 object UltraAppPolicy {
 
-    const val MAX_SELECTABLE = 12
+    const val MAX_SELECTABLE = 24
 
-    // BUG 1 FIX: detecta dinamicamente apps com serviço VPN instalados no dispositivo
     fun getVpnPackageNames(context: Context): Set<String> {
         return try {
             val intent = Intent("android.net.VpnService")
@@ -59,26 +58,52 @@ object UltraAppPolicy {
         set.add("com.google.android.gsf")
         set.add("com.android.settings")
         set.add("com.smartpack.kernelmanager")
-
-        // BUG 1 FIX: Magisk e VPNs são obrigatórios (seleção imutável)
+        set.add("com.google.android.apps.wellbeing")
+        set.add("com.arlosoft.macrodroid")
+        set.add("com.google.android.apps.kids.familylink")
+        set.add("com.llamalab.automate")
+        set.add("com.marinov.clearcache")
         set.add("com.topjohnwu.magisk")
+        set.add("org.fdroid")
+        set.add("com.looker.droidify")
+        set.add("org.breezyweather")
+        set.add("com.kms.free")
+        set.add("com.bitdefender.antivirus")
+        set.add("com.eset.ems2.gp")
+        set.add("com.eset.etvs.gp")
+        set.add("com.bitdefender.security")
+        set.add("com.marinov.mirrorscreensettings")
+        set.add("com.rosan.installer.x.revived")
         set.addAll(getVpnPackageNames(context))
 
         return set
     }
 
     fun getHiddenPackageNames(context: Context): Set<String> {
-        // BUG 1 FIX: Magisk e VPNs também são ocultos (não contam nas 12 vagas)
         return setOf(
-            "com.android.vending",
             "com.google.android.gms",
+            "org.fdroid",
+            "org.adaway",
             "com.google.android.gsf",
             "com.smartpack.kernelmanager",
+            "com.google.android.apps.wellbeing",
+            "com.arlosoft.macrodroid",
+            "com.google.android.apps.kids.familylink",
+            "com.marinov.clearcache",
+            "com.llamalab.automate",
+            "com.android.vending",
+            "com.looker.droidify",
+            "com.kms.free",
+            "com.bitdefender.security",
+            "com.bitdefender.antivirus",
+            "com.eset.ems2.gp",
+            "com.eset.etvs.gp",
+            "com.marinov.mirrorscreensettings",
+            "com.rosan.installer.x.revived",
             "com.topjohnwu.magisk"
         ) + getVpnPackageNames(context)
     }
 
-    // BUG 2 FIX: contagem baseada na lista global, não na lista filtrada do adapter
     fun countSelectableSelected(apps: List<AppInfo>): Int {
         return apps.count { it.isChecked && !it.isHidden }
     }

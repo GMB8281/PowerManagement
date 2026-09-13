@@ -5,14 +5,17 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.view.GestureDetector
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.GridLayout
+import android.view.MotionEvent
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.ViewFlipper
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GestureDetectorCompat
 import com.google.android.material.appbar.MaterialToolbar
 import com.marinov.powermanagement.R
 import com.marinov.powermanagement.core.LauncherManager
@@ -24,27 +27,39 @@ import com.marinov.powermanagement.ultra.UltraBatterySaver
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.abs
 
 class LauncherActivity : AppCompatActivity() {
+
+    companion object {
+        private const val SWIPE_THRESHOLD = 120f
+        private const val SWIPE_VELOCITY_THRESHOLD = 120f
+    }
 
     private lateinit var tvTime: TextView
     private lateinit var tvDate: TextView
     private lateinit var tvDayOfWeek: TextView
-    private lateinit var gridApps: GridLayout
+    private lateinit var tvPageIndicator: TextView
+    private lateinit var viewFlipper: ViewFlipper
 
-    private val imageViews = arrayOfNulls<ImageView>(12)
-    private val textViews = arrayOfNulls<TextView>(12)
+    private val imageViews = arrayOfNulls<ImageView>(24)
+    private val textViews = arrayOfNulls<TextView>(24)
 
     private val handler = Handler(Looper.getMainLooper())
+
     private val timeDateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     private val dayOfWeekFormat = SimpleDateFormat("EEEE", Locale.getDefault())
+
+    private var hasSecondPage = false
 
     // BUG 1 FIX: hiddenPackages agora inclui Magisk e VPNs detectadas dinamicamente.
     // Lazy garante que é calculado uma única vez, após o contexto estar disponível.
     private val hiddenPackages: Set<String> by lazy {
         UltraAppPolicy.getHiddenPackageNames(this)
     }
+
+    private lateinit var gestureDetector: GestureDetectorCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,36 +87,137 @@ class LauncherActivity : AppCompatActivity() {
         tvTime = findViewById(R.id.tv_time)
         tvDate = findViewById(R.id.tv_date)
         tvDayOfWeek = findViewById(R.id.tv_day_of_week)
-        gridApps = findViewById(R.id.grid_apps)
+        tvPageIndicator = findViewById(R.id.tv_page_indicator)
+        viewFlipper = findViewById(R.id.view_flipper)
 
-        imageViews[0] = findViewById(R.id.app_slot_1)
-        imageViews[1] = findViewById(R.id.app_slot_2)
-        imageViews[2] = findViewById(R.id.app_slot_3)
-        imageViews[3] = findViewById(R.id.app_slot_4)
-        imageViews[4] = findViewById(R.id.app_slot_5)
-        imageViews[5] = findViewById(R.id.app_slot_6)
-        imageViews[6] = findViewById(R.id.app_slot_7)
-        imageViews[7] = findViewById(R.id.app_slot_8)
-        imageViews[8] = findViewById(R.id.app_slot_9)
-        imageViews[9] = findViewById(R.id.app_slot_10)
-        imageViews[10] = findViewById(R.id.app_slot_11)
-        imageViews[11] = findViewById(R.id.app_slot_12)
-
-        textViews[0] = findViewById(R.id.app_label_1)
-        textViews[1] = findViewById(R.id.app_label_2)
-        textViews[2] = findViewById(R.id.app_label_3)
-        textViews[3] = findViewById(R.id.app_label_4)
-        textViews[4] = findViewById(R.id.app_label_5)
-        textViews[5] = findViewById(R.id.app_label_6)
-        textViews[6] = findViewById(R.id.app_label_7)
-        textViews[7] = findViewById(R.id.app_label_8)
-        textViews[8] = findViewById(R.id.app_label_9)
-        textViews[9] = findViewById(R.id.app_label_10)
-        textViews[10] = findViewById(R.id.app_label_11)
-        textViews[11] = findViewById(R.id.app_label_12)
+        setupAppViews()
+        setupGestureDetector()
 
         loadAllowedApps()
         updateClock()
+        updatePageIndicator()
+    }
+
+    private fun setupAppViews() {
+        val imageIds = intArrayOf(
+            R.id.app_slot_1,
+            R.id.app_slot_2,
+            R.id.app_slot_3,
+            R.id.app_slot_4,
+            R.id.app_slot_5,
+            R.id.app_slot_6,
+            R.id.app_slot_7,
+            R.id.app_slot_8,
+            R.id.app_slot_9,
+            R.id.app_slot_10,
+            R.id.app_slot_11,
+            R.id.app_slot_12,
+            R.id.app_slot_13,
+            R.id.app_slot_14,
+            R.id.app_slot_15,
+            R.id.app_slot_16,
+            R.id.app_slot_17,
+            R.id.app_slot_18,
+            R.id.app_slot_19,
+            R.id.app_slot_20,
+            R.id.app_slot_21,
+            R.id.app_slot_22,
+            R.id.app_slot_23,
+            R.id.app_slot_24
+        )
+
+        val labelIds = intArrayOf(
+            R.id.app_label_1,
+            R.id.app_label_2,
+            R.id.app_label_3,
+            R.id.app_label_4,
+            R.id.app_label_5,
+            R.id.app_label_6,
+            R.id.app_label_7,
+            R.id.app_label_8,
+            R.id.app_label_9,
+            R.id.app_label_10,
+            R.id.app_label_11,
+            R.id.app_label_12,
+            R.id.app_label_13,
+            R.id.app_label_14,
+            R.id.app_label_15,
+            R.id.app_label_16,
+            R.id.app_label_17,
+            R.id.app_label_18,
+            R.id.app_label_19,
+            R.id.app_label_20,
+            R.id.app_label_21,
+            R.id.app_label_22,
+            R.id.app_label_23,
+            R.id.app_label_24
+        )
+
+        for (i in 0 until 24) {
+            imageViews[i] = findViewById(imageIds[i])
+            textViews[i] = findViewById(labelIds[i])
+        }
+    }
+
+    private fun setupGestureDetector() {
+        gestureDetector = GestureDetectorCompat(
+            this,
+            object : GestureDetector.SimpleOnGestureListener() {
+
+                override fun onDown(e: MotionEvent): Boolean {
+                    return true
+                }
+
+                override fun onFling(
+                    e1: MotionEvent?,
+                    e2: MotionEvent,
+                    velocityX: Float,
+                    velocityY: Float
+                ): Boolean {
+                    if (e1 == null) return false
+
+                    val diffX = e2.x - e1.x
+
+                    if (abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffX > 0) {
+                            showPreviousPage()
+                        } else {
+                            showNextPage()
+                        }
+                        return true
+                    }
+
+                    return false
+                }
+            }
+        )
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        gestureDetector.onTouchEvent(ev)
+        return super.dispatchTouchEvent(ev)
+    }
+
+    private fun showPreviousPage() {
+        if (viewFlipper.displayedChild > 0) {
+            viewFlipper.showPrevious()
+            updatePageIndicator()
+        }
+    }
+
+    private fun showNextPage() {
+        if (hasSecondPage && viewFlipper.displayedChild < viewFlipper.childCount - 1) {
+            viewFlipper.showNext()
+            updatePageIndicator()
+        }
+    }
+
+    private fun updatePageIndicator() {
+        tvPageIndicator.text = if (hasSecondPage) {
+            "${viewFlipper.displayedChild + 1}/2"
+        } else {
+            "1/1"
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -115,6 +231,7 @@ class LauncherActivity : AppCompatActivity() {
             finish()
             return true
         }
+
         return super.onOptionsItemSelected(item)
     }
 
@@ -123,9 +240,15 @@ class LauncherActivity : AppCompatActivity() {
 
         val allowedPackages = UltraBatterySaver.getAllowedApps(this)
             .filterNot { it in hiddenPackages }
-            .take(12)
+            .take(24)
 
-        for (i in 0 until 12) {
+        hasSecondPage = allowedPackages.size > 12
+
+        if (!hasSecondPage && viewFlipper.displayedChild != 0) {
+            viewFlipper.displayedChild = 0
+        }
+
+        for (i in 0 until 24) {
             val iconView = imageViews[i] ?: continue
             val labelView = textViews[i] ?: continue
 
@@ -133,7 +256,11 @@ class LauncherActivity : AppCompatActivity() {
                 val packageName = allowedPackages[i]
 
                 try {
-                    val appInfo = pm.getApplicationInfo(packageName, android.content.pm.PackageManager.GET_META_DATA)
+                    val appInfo = pm.getApplicationInfo(
+                        packageName,
+                        android.content.pm.PackageManager.GET_META_DATA
+                    )
+
                     val icon = pm.getApplicationIcon(appInfo)
                     val label = pm.getApplicationLabel(appInfo).toString()
 
@@ -144,6 +271,7 @@ class LauncherActivity : AppCompatActivity() {
                     iconView.setOnClickListener {
                         try {
                             val intent = pm.getLaunchIntentForPackage(packageName)
+
                             if (intent != null) {
                                 startActivity(intent)
                             } else {
@@ -153,6 +281,7 @@ class LauncherActivity : AppCompatActivity() {
                             Toast.makeText(this, R.string.app_launch_error_generic, Toast.LENGTH_SHORT).show()
                         }
                     }
+
                 } catch (_: android.content.pm.PackageManager.NameNotFoundException) {
                     setEmptySlot(iconView, labelView)
                 }
@@ -160,6 +289,8 @@ class LauncherActivity : AppCompatActivity() {
                 setEmptySlot(iconView, labelView)
             }
         }
+
+        updatePageIndicator()
     }
 
     private fun setEmptySlot(icon: ImageView, label: TextView) {
