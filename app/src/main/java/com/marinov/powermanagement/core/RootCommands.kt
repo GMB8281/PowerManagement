@@ -14,18 +14,10 @@ object RootCommands {
 
     fun isRootAvailable(): Boolean = run("echo test")
 
-    /**
-     * Executa comandos em lote.
-     *
-     * @param stopOnError Se true, usa "&&" e para no primeiro erro.
-     *                    Se false, usa ";" e tenta executar todos os comandos.
-     */
-    fun runBatch(commands: List<String>, stopOnError: Boolean = true): Boolean {
+    fun runBatch(commands: List<String>): Boolean {
         if (commands.isEmpty()) return true
 
-        val separator = if (stopOnError) " && " else " ; "
-        val script = commands.joinToString(separator)
-
+        val script = commands.joinToString(" && ")
         return try {
             val process = Runtime.getRuntime().exec(arrayOf("su", "-c", script))
             process.waitFor()
